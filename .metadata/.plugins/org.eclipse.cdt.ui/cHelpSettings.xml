@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<cHelpSettings>
+                                
+    
+    
+    
+    
+    
+    
+    <project name="ADC_test_20250903">
+                                                        
+        
+        
+        
+        
+        
+        <provider id="org.eclipse.cdt.ui.provider1"/>
+                                                        
+        
+        
+        
+        
+        
+        <provider id="org.eclipse.linuxtools.cdt.libhover.provider"/>
+                                                    
+    
+    
+    
+    
+    
+    </project>
+                            
+
+    
+    
+    
+    
+    
+    <project name="lab0_aik_ra8d1_adc_usb_project">
+        <provider id="org.eclipse.cdt.ui.provider1"/>
+        <provider id="org.eclipse.linuxtools.cdt.libhover.provider"/>
+    </project>
+                    
+
+
+
+
+</cHelpSettings>
