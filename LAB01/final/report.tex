@@ -1,0 +1,295 @@
+\documentclass[10pt]{article}
+\usepackage[a4paper, margin=.9in]{geometry}
+% \usepackage{xeCJK}
+% \setCJKmainfont{Microsoft YaHei} 
+\newcommand{\DOUBLECOL}{}	% turns this on for double column
+\newlength{\subfigureheight}
+\newlength{\figurewidth}
+\ifdefined\DOUBLECOL
+\setlength{\subfigureheight}{2.45in}
+\setlength{\figurewidth}{3.5in}
+\else
+\setlength{\subfigureheight}{2.35in}
+\setlength{\figurewidth}{6.5in}
+\fi
+\usepackage{amsfonts,amsmath,amssymb,bm,cancel,color,comment,epsfig,enumerate,empheq,floatrow,hyperref,mathdots,mathrsfs}
+\usepackage{placeins}%\usepackage{algorithmic}
+\usepackage[vlined,ruled,linesnumbered]{algorithm2e}
+\SetKwInput{KwInput}{Input}                % Set the Input
+\SetKwInput{KwOutput}{Output}              % set the Output
+\SetKwRepeat{Do}{do}{until}%
+\usepackage{graphicx}
+%\usepackage{amsthm}
+\usepackage[super]{nth}
+\usepackage[noadjust]{cite}
+\usepackage{subcaption}
+\usepackage{tabularx}
+\usepackage{tabularray}		% make thing horizontal lines in tabular
+\UseTblrLibrary{booktabs}	% make thing horizontal lines in tabular
+
+% --- TikZ setup ---
+\usepackage{tikz}
+\usetikzlibrary{positioning,shapes,arrows.meta,calc}
+\usetikzlibrary{decorations.pathreplacing}
+
+% \tikzstyle{block} = [rectangle, rounded corners, minimum width=3cm, minimum height=1cm,
+%                      text centered, draw=black, fill=blue!10]
+% \tikzstyle{arrow} = [thick,->,>=stealth]
+
+\tikzset{
+  >={Latex[length=3mm]},
+  block/.style={draw, thick, rectangle, minimum width=2.8cm, minimum height=1.2cm, align=center},
+  filter/.style={draw, thick, trapezium, trapezium left angle=70, trapezium right angle=110,
+                 minimum width=3.0cm, minimum height=1.2cm, align=center},
+  mixer/.style={circle, draw, thick, minimum size=8mm, inner sep=0pt,
+                path picture={
+                  \draw[]
+                    (-2.4mm,-2.4mm)--(2.4mm,2.4mm)
+                    (-2.4mm,2.4mm)--(2.4mm,-2.4mm);
+                }},
+  conn/.style={thick, -{Latex}}
+}
+
+% \graphicspath{{eps/}}
+
+\hypersetup{
+	colorlinks=true,
+	linkcolor=red,
+	citecolor=green,
+	filecolor=magenta,
+	urlcolor=blue
+}
+
+
+\newenvironment{Ualgorithm}[1][htpb]{\def\@algocf@post@ruled{\kern\interspacealgoruled\hrule  height\algoheightrule\kern3pt\relax}%
+\def\@algocf@capt@ruled{under}
+\begin{algorithm}[#1]}
+{\end{algorithm}}
+
+\setcounter{MaxMatrixCols}{30}
+\DeclareSymbolFont{grb}{OML}{cmm}{b}{it}
+\DeclareMathSymbol{\zetab}{\mathord}{grb}{"10}
+\DeclareMathSymbol{\etab}{\mathord}{grb}{"11}
+\DeclareMathSymbol{\thetab}{\mathord}{grb}{"12}
+\DeclareMathSymbol{\kappab}{\mathord}{grb}{"14}
+\DeclareMathSymbol{\lambdab}{\mathord}{grb}{"15}
+\DeclareMathSymbol{\mub}{\mathord}{grb}{"16}
+\DeclareMathSymbol{\nub}{\mathord}{grb}{"17}
+\DeclareMathSymbol{\rhob}{\mathord}{grb}{"1A}
+\DeclareMathSymbol{\sigmab}{\mathord}{grb}{"1B}
+\DeclareMathSymbol{\taub}{\mathord}{grb}{"1C}
+\DeclareMathSymbol{\phib}{\mathord}{grb}{"1E}
+\DeclareMathSymbol{\psib}{\mathord}{grb}{"20}
+\DeclareMathSymbol{\omegab}{\mathord}{grb}{"21}
+\DeclareMathSymbol{\epsilonb}{\mathord}{grb}{"22}
+\DeclareMathSymbol{\varphib}{\mathord}{grb}{"27}
+\input{Symbol_Shortcut.tex}
+
+\newtheorem{theorem}{\bf Theorem}		% by Victor
+\newtheorem{corollary}{\bf Corollary}	% by Victor
+\newtheorem{definition}{\bf Definition}	% by Victor
+
+%\centerfigcaptionstrue
+
+%\pagestyle{empty}
+
+\makeatletter
+\def\ifundefined{\@ifundefined}
+\makeatother
+
+\setlength{\parskip}{0ex}
+
+% generating the double accent on o, i.e. \fH{o}, e.g. Erdos Renyi 
+\newcommand\fH[1]{\sbox0{#1}\dimen0=\ht0 \advance\dimen0 -1ex
+  \sbox2{\'{}}\sbox2{\raise\dimen0\box2}%
+  {\ooalign{\hidewidth\kern.1em\copy2\kern-.5\wd2\box2\hidewidth\cr\box0\crcr}}}
+
+\title{\vspace{-0.2em} \huge LAB1 Report}
+
+% \ifdefined \BLIND
+\author{Pin-Jing, Li (111511015 \it{ouo.ee11@nycu.edu.tw})\\ 
+Jing-Kai, Huang\\ 
+Duan-Kai, Wu}
+
+
+
+
+
+% \markboth{IEEE Trans. on Communications}{Model-Driven Based MIMO Channel Estimator}
+\begin{document}
+\maketitle
+
+
+% \begin{IEEEkeywords}
+% \end{IEEEkeywords}
+In lab 1 We explored the basic configuration of $\mathrm{e}^2$ studio, ultrasound module and the basic signal processing flow of the wireless transmitted signal.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Hardware configuration}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Error Source Analysis}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{figure}[!h]
+	\centering 
+	\subcaptionbox{Measured Peak and the theoretical sample (T=25)
+		\label{fig:sample_meas_theo}} {
+		\includegraphics[width = .45\columnwidth]{fig/distance_vs_sample_theo_meas.png}	
+	}
+	\subcaptionbox{Error vs. distance 
+		\label{fig:error_vs_dist}} {
+		\includegraphics[width = .45\columnwidth]{fig/distance_vs_delta.png}
+	}
+	\caption{Comparing robust and non-robust design for linear precoder}
+\label{fig:robust_lin}
+\end{figure}
+
+We inspect the relative distance
+\begin{table}[h!]
+\centering
+\caption{Relative Distance Comparison (Measured vs. Theoretical)}
+\begin{tabular}{c|c|c|c|c|c|c}
+\hline
+Pair (cm) & $n^*_{\mathrm{theory}}$ & $n_{\mathrm{meas}}$ & 
+$\Delta n^*_{\mathrm{theory}}$ & $\Delta n_{\mathrm{meas}}$ &
+$\frac{\Delta n_{\mathrm{meas}}}{\Delta n^*_{\mathrm{theory}}}$ & 
+Relative Error (\%) \\
+\hline
+20$\rightarrow$40 & 185.97$\rightarrow$373.94 & 232$\rightarrow$416 &
+187.97 & 184 & 0.979 & $-2.1$ \\
+40$\rightarrow$60 & 373.94$\rightarrow$558.91 & 416$\rightarrow$602 &
+184.97 & 186 & 1.006 & $+0.6$ \\
+60$\rightarrow$80 & 558.91$\rightarrow$748.88 & 602$\rightarrow$782 &
+189.97 & 180 & 0.947 & $-5.3$ \\
+80$\rightarrow$100 & 748.88$\rightarrow$928.86 & 782$\rightarrow$957 &
+179.98 & 175 & 0.972 & $-2.8$ \\
+\hline
+\end{tabular}
+\end{table}
+
+
+
+\begin{figure}[!h]
+	\centering 
+		\includegraphics[width = .75\columnwidth]{fig/100_fdomain_bpf.png}	
+	\caption{bpf}
+\label{fig:bpf}
+\end{figure}
+\begin{figure}[!h]
+	\centering 
+		\includegraphics[width = .75\columnwidth]{fig/100_fdomain_demod.png}	
+	\caption{demod}
+\label{fig:demod}
+\end{figure}
+% \begin{figure}[!h]
+% 	\centering 
+% 		\includegraphics[width = .75\columnwidth]{fig/100_fdomain_bb_lp.png}	
+% 	\caption{}
+% \label{fig:bb_lp}
+% \end{figure}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Signal Processing}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{figure}[h!]
+\centering
+\begin{tikzpicture}[node distance=2.0cm and 1.4cm]
+
+% Nodes (main chain)
+% \node (x)    [block, draw=none] {};
+\node (bpf)  [filter] {Band-Pass\\Filter};
+\node (mix)  [mixer,  right=of bpf] {};
+\node (lpf)  [filter, right=of mix] {Low-Pass\\Filter};
+\node (env)  [block,  right=of lpf] {Envelope};
+
+% LO branch (for demodulator)
+\node (lo)   [block, above=1.6cm of mix, minimum width=2.2cm] {LO: $\cos(2\pi f_c t)$};
+
+% Connections
+% \draw[conn] (x) -- (bpf);
+\draw[conn] ([xshift=-1.5cm]bpf.west) -- (bpf.west);
+\draw[conn] (bpf) -- (mix);
+\draw[conn] (mix) -- (lpf);
+\draw[conn] (lpf) -- (env);
+\draw[conn] (lo)  -- (mix);
+
+% Optional labels on interconnects
+\node[above, font=\small] at ($(bpf.west)!0.5!([xshift=-1.5cm]bpf.west)$) {$x(t)$};
+\node[above right,  font=\small] at ($(bpf)!0.5!(mix)$) {$x_{\text{bpf}}(t)$};
+\node[above left,  font=\small] at ($(mix)!0.5!(lpf)$) {$x_{\text{de}(t)}$};
+\node[above, font=\small] at ($(lpf)!0.5!(env)$) {$x_\text{bb}(t)$};
+
+\end{tikzpicture}
+\caption{block diagram: signal $\rightarrow$ BPF $\rightarrow$ demod (mixer) $\rightarrow$ LPF $\rightarrow$ envelope.}
+\label{fig:sp-chain}
+\end{figure}
+
+\begin{figure}[!h]
+	\centering 
+		\includegraphics[width = .99\columnwidth]{fig/100_tdomain_raw_processed}	
+	\caption{Time domain signal before and after filtering \& demodulation}
+\label{fig:tdom_raw and processed}
+\end{figure}
+
+%**************************************************************************
+\begin{algorithm}[H]
+	\SetAlgoLined
+    \KwResult{$\y^\star,\; \bdelta_H^\star$}
+    \SetKwInput{Input}{Initialization}
+    \Input{Set $\bdelta_H^{(0)}$ to a feasible solution, $\lambda \geq 0$, $k= 0$} %\\
+    \Do{ $\mcL_2(\bdelta_H^\star, \lambda) $ converges in (\ref{eq_min_R_bound}) }{	
+    	Update $\y^(k+1)\star \leftarrow \sigma_w^{-2} (\phi_E^T \otimes \I_{N_R} ) (\hbh + \bdelta_H^{(k)})$ \;
+    	Update $\bdelta^{(k+1)\star} = - \frac{1}{\lambda_k}\B^{-1} \nabla f_k(\bdelta_k^{(k), \y^{(k)\star}}) \in \mbC^{N_TN_R}$\;
+    	$k = k+1$ \; 
+    	$\bdelta_H^{(k)} = \bdelta_H^\star$ \;
+    }	
+    %$\hbs_W[n|n]=\hbs_W^{(i)}[n|n]$\;
+    %$\M[n|n]=\left(\I-\K^{(i-1)}[n]\H \right)\M^{(i-1)}[n|n-1]$\;
+    \caption{Proposed MM technique for solving (\protect\ref{eq_min_R}).}
+\label{alg_MM}
+\end{algorithm}
+%**************************************************************************
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\appendix{}
+\section{Gradient of f} 
+\label{appendix:grad_f_k}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\begin{thebibliography}{99}
+
+\bibitem{chang2015semm}
+C.-Y. Chang and C.C. Fung, ``Sparsity enhanced mismatch model for robust spatial intercell interference cancelation in heterogeneous networks,'' \emph{IEEE Trans. on Communications}, vol. 63(1), pp. 125-139, Jan. 2015.
+
+\bibitem{ipr_realworld}
+I. P. Roberts, Y. Zhang, T. Osman, and A. Alkhateeb, ``Real-world evaluation of full-duplex millimeter wave communication systems,'' \emph{IEEE Trans. Wireless Commun.}, early access, Mar. 2024.
+
+\bibitem{ShenYu2018}
+K.~Shen and W.~Yu, ``Fractional Programming for Communication Systems—Part I: Power Control and Beamforming,'' \textit{IEEE Transactions on Signal Processing}, vol.~66, no.~10, pp.~2616-2630, May 15, 2018, doi: 10.1109/TSP.2018.2812733.
+
+\bibitem{ho2020denoising}
+J.~Ho, A.~Jain, and P.~Abbeel, ``Denoising diffusion probabilistic models,'' 
+\emph{Advances in Neural Information Processing Systems}, vol.~33, pp.~6840--6851, 2020.
+
+\bibitem{o2017dl_phy_layer}
+T.~O’Shea and J.~Hoydis, ``An introduction to deep learning for the physical layer,'' 
+\emph{IEEE Transactions on Cognitive Communications and Networking}, vol.~3, no.~4, pp.~563--575, 2017.
+
+\bibitem{Servetnyk2022} 
+M.~Servetnyk and C.~C.~Fung, ``Distributed fronthaul-constrained joint transmission design and selection using augmented consensus-based dual decomposition,'' \textit{Journal of Communications and Networks}, vol.~24, no.~4, pp.~419--437, Aug.~2022, doi: \href{https://doi.org/10.23919/JCN.2022.000030}{10.23919/JCN.2022.000030}.
+
+\end{thebibliography}
+\end{document}
+
+
+
+
