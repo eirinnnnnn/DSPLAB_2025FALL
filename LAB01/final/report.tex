@@ -27,6 +27,34 @@
 \usepackage{tabularray}		% make thing horizontal lines in tabular
 \UseTblrLibrary{booktabs}	% make thing horizontal lines in tabular
 
+\usepackage{listings}
+\usepackage{xcolor}
+
+% --- MATLAB code style ---
+\lstdefinelanguage{Matlab}{
+  morekeywords={break,case,catch,continue,else,elseif,end,for,function,
+    global,if,otherwise,persistent,return,switch,try,while},
+  sensitive=true,
+  morecomment=[l]\%,
+  morestring=[m]',
+}
+\lstset{
+  language=Matlab,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{gray},
+  stringstyle=\color{red!70!black},
+  numbers=left,
+  numberstyle=\tiny,
+  stepnumber=1,
+  numbersep=5pt,
+  frame=single,
+  breaklines=true,
+  showstringspaces=false,
+  columns=fullflexible
+}
+
+
 % --- TikZ setup ---
 \usepackage{tikz}
 \usetikzlibrary{positioning,shapes,arrows.meta,calc}
@@ -153,39 +181,25 @@ We inspect the relative distance
 \begin{table}[h!]
 \centering
 \caption{Relative Distance Comparison (Measured vs. Theoretical)}
-\begin{tabular}{c|c|c|c|c|c|c}
+\begin{tabular}{|c|c|c|c|c|c|c|}
 \hline
 Pair (cm) & $n^*_{\mathrm{theory}}$ & $n_{\mathrm{meas}}$ & 
 $\Delta n^*_{\mathrm{theory}}$ & $\Delta n_{\mathrm{meas}}$ &
 $\frac{\Delta n_{\mathrm{meas}}}{\Delta n^*_{\mathrm{theory}}}$ & 
 Relative Error (\%) \\
 \hline
-20$\rightarrow$40 & 185.97$\rightarrow$373.94 & 232$\rightarrow$416 &
-187.97 & 184 & 0.979 & $-2.1$ \\
-40$\rightarrow$60 & 373.94$\rightarrow$558.91 & 416$\rightarrow$602 &
-184.97 & 186 & 1.006 & $+0.6$ \\
-60$\rightarrow$80 & 558.91$\rightarrow$748.88 & 602$\rightarrow$782 &
-189.97 & 180 & 0.947 & $-5.3$ \\
-80$\rightarrow$100 & 748.88$\rightarrow$928.86 & 782$\rightarrow$957 &
-179.98 & 175 & 0.972 & $-2.8$ \\
+20→40 & 184.97$\rightarrow$369.94 & 231$\rightarrow$412 & 184.97 & 181 & 0.979 & -2.1 \\
+40→60 & 369.94$\rightarrow$554.91 & 412$\rightarrow$598 & 184.97 & 186 & 1.006 & +0.6 \\
+60→80 & 554.91$\rightarrow$739.88 & 598$\rightarrow$773 & 184.97 & 175 & 0.946 & -5.4 \\
+80→100 & 739.88$\rightarrow$924.86 & 773$\rightarrow$953 & 184.97 & 180 & 0.973 & -2.7 \\
 \hline
 \end{tabular}
 \end{table}
+We retrieve back $n_\mathrm{meas}$ by aligning the starting sample by the maximum Tx data 
 
 
 
-\begin{figure}[!h]
-	\centering 
-		\includegraphics[width = .75\columnwidth]{fig/100_fdomain_bpf.png}	
-	\caption{bpf}
-\label{fig:bpf}
-\end{figure}
-\begin{figure}[!h]
-	\centering 
-		\includegraphics[width = .75\columnwidth]{fig/100_fdomain_demod.png}	
-	\caption{demod}
-\label{fig:demod}
-\end{figure}
+
 % \begin{figure}[!h]
 % 	\centering 
 % 		\includegraphics[width = .75\columnwidth]{fig/100_fdomain_bb_lp.png}	
@@ -209,7 +223,7 @@ Relative Error (\%) \\
 \node (env)  [block,  right=of lpf] {Envelope};
 
 % LO branch (for demodulator)
-\node (lo)   [block, above=1.6cm of mix, minimum width=2.2cm] {LO: $\cos(2\pi f_c t)$};
+\node (lo)   [block, above=1.6cm of mix, minimum width=2.2cm] {LO: $\e^{-j2\pi f_c t}$};
 
 % Connections
 % \draw[conn] (x) -- (bpf);
@@ -222,7 +236,7 @@ Relative Error (\%) \\
 % Optional labels on interconnects
 \node[above, font=\small] at ($(bpf.west)!0.5!([xshift=-1.5cm]bpf.west)$) {$x(t)$};
 \node[above right,  font=\small] at ($(bpf)!0.5!(mix)$) {$x_{\text{bpf}}(t)$};
-\node[above left,  font=\small] at ($(mix)!0.5!(lpf)$) {$x_{\text{de}(t)}$};
+\node[above left,  font=\small] at ($(mix)!0.5!(lpf)$) {$x_{\text{de}}(t)$};
 \node[above, font=\small] at ($(lpf)!0.5!(env)$) {$x_\text{bb}(t)$};
 
 \end{tikzpicture}
@@ -237,29 +251,79 @@ Relative Error (\%) \\
 \label{fig:tdom_raw and processed}
 \end{figure}
 
-%**************************************************************************
-\begin{algorithm}[H]
-	\SetAlgoLined
-    \KwResult{$\y^\star,\; \bdelta_H^\star$}
-    \SetKwInput{Input}{Initialization}
-    \Input{Set $\bdelta_H^{(0)}$ to a feasible solution, $\lambda \geq 0$, $k= 0$} %\\
-    \Do{ $\mcL_2(\bdelta_H^\star, \lambda) $ converges in (\ref{eq_min_R_bound}) }{	
-    	Update $\y^(k+1)\star \leftarrow \sigma_w^{-2} (\phi_E^T \otimes \I_{N_R} ) (\hbh + \bdelta_H^{(k)})$ \;
-    	Update $\bdelta^{(k+1)\star} = - \frac{1}{\lambda_k}\B^{-1} \nabla f_k(\bdelta_k^{(k), \y^{(k)\star}}) \in \mbC^{N_TN_R}$\;
-    	$k = k+1$ \; 
-    	$\bdelta_H^{(k)} = \bdelta_H^\star$ \;
-    }	
-    %$\hbs_W[n|n]=\hbs_W^{(i)}[n|n]$\;
-    %$\M[n|n]=\left(\I-\K^{(i-1)}[n]\H \right)\M^{(i-1)}[n|n-1]$\;
-    \caption{Proposed MM technique for solving (\protect\ref{eq_min_R}).}
-\label{alg_MM}
-\end{algorithm}
-%**************************************************************************
+
+some discussion below:
+\begin{itemize}
+	\item \textbf{Correct "Detection" threshold. } The physically correct measure of the time of flight (TOF) would be the \textit{wavefront} of the received signal.
+\end{itemize}
+
+\begin{figure}[!h]
+	\centering 
+		\includegraphics[width = .75\columnwidth]{fig/100_fdomain_bpf.png}	
+	\caption{bpf}
+\label{fig:bpf}
+\end{figure}
+
+\subsection*{Bandpass Filtering}
+
+Given the sampled received signal $x(t)$, we first apply a bandpass filter to isolate the signal components near the carrier frequency. The bandpass-filtered signal is
+
+\begin{equation}
+x_{\mathrm{bpf}}(t) = x(t) * h_{\mathrm{bpf}}(t)
+\end{equation}
+
+where $*$ denotes convolution and $h_{\mathrm{bpf}}(t)$ is the impulse response of the bandpass filter.  
+
+\paragraph{Filter Design.}
+We choose a $6^{\text{th}}$-order IIR Butterworth bandpass filter with half-power frequencies
+\[
+f_{\mathrm{bp},1} = f_c - 2f_w, \qquad
+f_{\mathrm{bp},2} = f_c + 2f_w,
+\]
+where the carrier frequency $f_c = 40~\mathrm{kHz}$ and the signal bandwidth is
+\[
+f_w = \frac{1}{T_{\mathrm{burst}}} \approx 5~\mathrm{kHz}.
+\]
+
+To ensure the filter design remains within valid frequency bounds, we compute:
+\[
+\begin{aligned}
+\texttt{bp\_bw} &= \max\!\bigl(2f_w,\, 12~\mathrm{kHz}\bigr),\\[4pt]
+\texttt{bp\_f1} &= \max\!\bigl(10,\, f_c - \texttt{bp\_bw}\bigr),\\[4pt]
+\texttt{bp\_f2} &= \min\!\bigl(\tfrac{F_s}{2}-10,\, f_c + \texttt{bp\_bw}\bigr),
+\end{aligned}
+\]
+where $F_s$ is the sampling frequency.
+
+\paragraph{MATLAB Implementation.}
+The filter is implemented and applied using MATLAB as follows:
+
+\begin{lstlisting}
+bp_bw = max(2*fw, 12e3);            % Bandwidth selection
+bp_f1 = max(10, fc - bp_bw);        % Lower cutoff frequency
+bp_f2 = min(Fs/2-10, fc + bp_bw);   % Upper cutoff frequency
+
+dbp = designfilt('bandpassiir','FilterOrder',6, ...
+    'HalfPowerFrequency1', bp_f1, ...
+    'HalfPowerFrequency2', bp_f2, ...
+    'SampleRate', Fs);
+
+rx_bp = filtfilt(dbp, rx_dc);       % Zero-phase filtering
+\end{lstlisting}
+
+This produces the zero-phase bandpass-filtered signal $x_{\mathrm{bpf}}(t)$.
+
+
+\begin{figure}[!h]
+	\centering 
+		\includegraphics[width = .75\columnwidth]{fig/100_fdomain_demod.png}	
+	\caption{demod}
+\label{fig:demod}
+\end{figure}
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \appendix{}
-\section{Gradient of f} 
-\label{appendix:grad_f_k}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
