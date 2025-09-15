@@ -163,21 +163,9 @@ In lab 1 We explored the basic configuration of $\mathrm{e}^2$ studio, ultrasoun
 \section{Error Source Analysis}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\begin{figure}[!h]
-	\centering 
-	\subcaptionbox{Measured Peak and the theoretical sample (T=25)
-		\label{fig:sample_meas_theo}} {
-		\includegraphics[width = .45\columnwidth]{fig/distance_vs_sample_theo_meas.png}	
-	}
-	\subcaptionbox{Error vs. distance 
-		\label{fig:error_vs_dist}} {
-		\includegraphics[width = .45\columnwidth]{fig/distance_vs_delta.png}
-	}
-	\caption{Comparing robust and non-robust design for linear precoder}
-\label{fig:robust_lin}
-\end{figure}
 
-We inspect the relative distance
+We inspect the relative distance and try to determine the model of the error.
+
 \begin{table}[h!]
 \centering
 \caption{Relative Distance Comparison (Measured vs. Theoretical)}
@@ -195,9 +183,23 @@ Relative Error (\%) \\
 \hline
 \end{tabular}
 \end{table}
+
 We retrieve back $n_\mathrm{meas}$ by aligning the starting sample by the maximum Tx data 
 
-
+We plot out the 
+\begin{figure}[!h]
+	\centering 
+	\subcaptionbox{Measured Peak and the theoretical sample (T=25)
+		\label{fig:sample_meas_theo}} {
+		\includegraphics[width = .45\columnwidth]{fig/distance_vs_sample_theo_meas.png}	
+	}
+	\subcaptionbox{Error vs. distance 
+		\label{fig:error_vs_dist}} {
+		\includegraphics[width = .45\columnwidth]{fig/distance_vs_delta.png}
+	}
+	\caption{Comparing robust and non-robust design for linear precoder}
+\label{fig:robust_lin}
+\end{figure}
 
 
 % \begin{figure}[!h]

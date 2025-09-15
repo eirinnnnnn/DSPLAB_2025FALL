@@ -1,0 +1,206 @@
+function Copy_of_process_ultra_plot_packet(matfile, varargin)
+% process_ultra_plot_packet('data_20cm_1.mat', 'Fs',160e3,'fc',40e3,'T',25,'d_true_cm',20)
+%
+% Stage 0: Load & sanity check
+% (下個階段再做：I/Q 解調、低通、findpeaks、誤差分析)
+
+% ---- 參數 ----
+p = inputParser;
+addParameter(p,'Fs',160e3);      % 取樣率
+addParameter(p,'fc',40e3);       % 載波
+addParameter(p,'T',28);          % 室溫(°C)，只用來算理論 n*
+addParameter(p,'d_true_cm',[]);  % 如果提供，會顯示理論 n*
+addParameter(p,'lp_fc',6e3);     % 低通截止 (包絡頻寬 ~1/T_burst ≈ 5kHz，可掃 2~10k)
+addParameter(p,'plot_zoom',2.5e-3); % 峰值附近顯示窗寬(秒)，預設 ±2.5 ms
+addParameter(p,'trim_first',true);  % 按規格丟棄第一個 sample
+parse(p,varargin{:});
+Fs      = p.Results.Fs;
+fc      = p.Results.fc;
+TdegC   = p.Results.T;
+d_true  = p.Results.d_true_cm;
+lp_fc   = p.Results.lp_fc; %#ok<NASGU>  % 之後濾波會用到
+zoom_w  = p.Results.plot_zoom;
+trim1   = p.Results.trim_first;
+
+% ---- 讀檔 ----
+S  = load(matfile);
+
+% 取 Tx / Rx（支援多種常見變數名）
+tx = pickVar(S, {'tx_received_data','tx','tx_data','txTrace','tx_signal'}, 'Tx');
+rx = pickVar(S, {'received_data','rx','rx_data','rxTrace','rx_signal'}, 'Rx');
+
+% 若為矩陣，預設取第一欄；轉 double、轉成 column vector
+tx = normalizeVec(tx);
+rx = normalizeVec(rx);
+
+% 丟掉第一個 sample（規格要求）
+if trim1
+    if numel(tx) > 1, tx = tx(2:end); end
+    if numel(rx) > 1, rx = rx(2:end); end
+end
+
+% 檔內若有 Fs/fc/T，優先採用
+if isfield(S,'Fs') && isnumeric(S.Fs) && isscalar(S.Fs) && S.Fs>0, Fs = double(S.Fs); end
+if isfield(S,'fc') && isnumeric(S.fc) && isscalar(S.fc) && S.fc>0, fc = double(S.fc); end
+if isfield(S,'T')  && isnumeric(S.T)  && isscalar(S.T),            TdegC = double(S.T); end
+
+% ---- 基本檢查與前處理 ----
+% 去除 DC（中位數較穩健）
+tx_dc = tx - median(tx);
+rx_dc = rx - median(rx);
+
+N = numel(rx_dc);
+t = (0:N-1).' / Fs;
+
+% 找 Tx 觸發上升緣索引 n0（粗略）
+n0 = find_tx_edge(tx_dc);
+
+% 若提供真實距離，計算理論往返時間與 n*（含 Tx 校正）
+n_star_rel = NaN;   % 相對於 Tx 觸發點的樣本差（Δn）
+n_star_abs = NaN;   % 在整段 Rx 時間軸上的絕對索引
+t_star      = NaN;  % 往返時間（秒）
+if ~isempty(d_true) && isfinite(d_true)
+    v_mps         = 331 + 0.6*TdegC;     % m/s
+    v_cm_per_us   = v_mps * 1e-4;        % cm/us ( = v[m/s]*100 / 1e6 )
+    t_star_us     = (2*d_true) / v_cm_per_us;   % µs
+    t_star        = t_star_us * 1e-6;           % s
+    n_star_rel    = round(t_star * Fs);         % 相對於 n0 的樣本差
+    n_star_abs    = n0 + n_star_rel;            % 絕對樣本索引（已扣/對齊 Tx）
+end
+
+% （為了相容舊變數名，可保留 n_star 指向相對索引）
+n_star = n_star_rel;
+
+
+% ---- 摘要輸出 ----
+fprintf('[%s]\n', matfile);
+fprintf('  Fs = %.3f kHz, fc = %.3f kHz, T = %.1f C\n', Fs/1e3, fc/1e3, TdegC);
+fprintf('  N  = %d samples (%.3f s)\n', N, N/Fs);
+fprintf('  Tx edge index n0 ≈ %d (t0 = %.3f ms)\n', n0, 1e3*n0/Fs);
+if ~isnan(n_star)
+    fprintf('  Expected TOF  t* = %.3f ms (Δn* ≈ %d after n0)\n', 1e3*t_star, n_star);
+end
+
+% ---- 快速檢視：原始時域（概覽＋放大） ----
+figure('Name','Raw Tx/Rx overview','Color','w');
+subplot(2,1,1);
+plot(t*1e3, tx_dc); grid on;
+xlabel('Time [ms]'); ylabel('Tx (DC-removed)'); title('Tx (overview)');
+
+subplot(2,1,2);
+plot(t*1e3, rx_dc); grid on;
+xlabel('Time [ms]'); ylabel('Rx (DC-removed)'); title('Rx (overview)');
+
+% 放大到觸發點附近（以及理論回波附近，如有）
+figure('Name','Zoom around trigger / expected echo','Color','w');
+hold on; grid on;
+plot(t*1e3, rx_dc, 'DisplayName','Rx');
+x0 = n0/Fs;
+xlim([x0-zoom_w, x0+max(zoom_w, 5e-3)]*1e3);   % 預設觸發前後與 ~5ms 內
+xlabel('Time [ms]'); ylabel('Rx'); title('Rx zoom near trigger');
+y = ylim;
+
+% 疊加輔助線：觸發時刻與理論到達（若有）
+plot([x0 x0]*1e3, y, 'k--', 'DisplayName','Tx edge', 'Color',[1,0,0]);
+if ~isnan(n_star_abs)
+    x_star = (n_star_abs)/Fs;
+    plot([x_star x_star]*1e3, y, 'r--', 'DisplayName','Expected echo t*', 'Color',[0,1,0]);
+end
+legend('show');
+
+% ---- 頻帶濾波：40 kHz ±8 kHz ----
+bp_lo = 32e3/(Fs/2);  % lower edge (normalized)
+bp_hi = 48e3/(Fs/2);  % upper edge
+[b_bp,a_bp] = butter(4, [bp_lo bp_hi], 'bandpass');  % 4階帶通
+rx_bp = filtfilt(b_bp, a_bp, rx_dc);
+
+% ---- I/Q 同步解調（相位對齊到 n0）----
+% 以 n0 為相位 0 參考，產生本振
+n_idx = (0:N-1).';
+phi   = 2*pi*fc*(n_idx - n0)/Fs;
+cLO   = cos(phi);
+sLO   = sin(phi);
+
+% 乘本振下變頻
+I = rx_dc .* cLO;
+Q = rx_ .* sLO;
+
+% 低通（保留包絡頻寬 ~ 5–8 kHz；用 filtfilt 做零相位）
+Wc = lp_fc/(Fs/2);                 % 正規化截止
+Wc = min(max(Wc, 1e-3), 0.99);     % 保險夾限
+[b_lp,a_lp] = butter(4, Wc);       % 4 階 Butterworth
+I_lp = filtfilt(b_lp, a_lp, I);
+Q_lp = filtfilt(b_lp, a_lp, Q);
+
+% 包絡（基帶振幅）
+env = sqrt(I_lp.^2 + Q_lp.^2);
+
+% ---- 簡單可視化：時域（Rx 與包絡）----
+figure('Name','Rx vs. Envelope (I/Q demod)','Color','w');
+plot(t*1e3, rx_dc, 'DisplayName','Rx (DC-removed)'); hold on; grid on;
+plot(t*1e3, env,   'LineWidth',1.2, 'DisplayName','Envelope (I/Q + LPF)');
+xline(1e3*n0/Fs, 'k--', 'Tx edge');
+if ~isnan(n_star_abs)
+    xline(1e3*n_star_abs/Fs, 'g--', 't* (wavefront, no cal)');
+end
+xlabel('Time [ms]'); ylabel('Amplitude');
+title('Bandpass signal vs. baseband envelope');
+legend('show');
+
+% ---- （可選）頻譜檢視：解調前 / 解調後 ----
+% 你若需要比較頻譜，打開以下註解即可
+% L = 2^nextpow2(N);
+% f = (0:L-1).' * (Fs/L);
+% RXF  = abs(fft(rx_dc, L))/N;
+% ENVF = abs(fft(env,   L))/N;
+% figure('Name','Spectra (pre/post demod)','Color','w');
+% subplot(2,1,1);
+% plot(f/1e3, 20*log10(RXF+eps)); xlim([0 Fs/2/1e3]); grid on;
+% xlabel('Frequency [kHz]'); ylabel('Mag [dB]');
+% title('Before demod (bandpass)');
+% subplot(2,1,2);
+% plot(f/1e3, 20*log10(ENVF+eps)); xlim([0 20]); grid on;
+% xlabel('Frequency [kHz]'); ylabel('Mag [dB]');
+% title('After demod (envelope)');
+
+
+end % main function
+
+
+% ---------- Helpers ----------
+function v = pickVar(S, names, tag)
+    for k = 1:numel(names)
+        if isfield(S, names{k})
+            v = S.(names{k});
+            return;
+        end
+    end
+    error('%s signal not found. Tried names: %s', tag, strjoin(names, ', '));
+end
+
+function x = normalizeVec(x)
+    x = double(x);
+    if ~isvector(x)
+        % 若是矩陣，取第一欄
+        x = x(:,1);
+    end
+    x = x(:);
+end
+
+function n0 = find_tx_edge(tx)
+    % 以閾值法找上升緣：normalize 後取第一個越過 0.3*max 的點
+    x = tx - median(tx);
+    if max(abs(x)) > 0
+        xn = x / max(abs(x));
+    else
+        xn = x;
+    end
+    thr = 0.3;      % 可依實際波形調整
+    idx = find(xn > thr, 1, 'first');
+    if isempty(idx)
+        % 備援：用微分最大點
+        dx = [0; diff(xn)];
+        [~, idx] = max(dx);
+    end
+    n0 = idx;
+end

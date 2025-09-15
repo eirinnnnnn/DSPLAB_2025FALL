@@ -1,7 +1,7 @@
 # Fdb version 4
-["pdflatex"] 1757858037.31668 "/home/eirin/DSPLAB_2025FALL/LAB01/final/report.tex" "report.pdf" "report" 1757858038.4887 0
+["pdflatex"] 1757940979.6538 "/home/eirin/DSPLAB_2025FALL/LAB01/final/report.tex" "report.pdf" "report" 1757940980.82229 0
   "/etc/texmf/web2c/texmf.cnf" 1756975224.79778 475 c0e671620eb5563b2130f56340a5fde8 ""
-  "/home/eirin/DSPLAB_2025FALL/LAB01/final/report.tex" 1757858035.92396 12121 fb280ebcdd9812ca37c73c92351719db ""
+  "/home/eirin/DSPLAB_2025FALL/LAB01/final/report.tex" 1757940978.06428 12184 6f032ae14743d88070b301d64991aa9d ""
   "/usr/share/texlive/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/jknappen/ec/tcrm1000.tfm" 1136768653 1536 e07581a4bb3136ece9eeb4c3ffab8233 ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/public/amsfonts/cmextra/cmbsy5.tfm" 1246382020 1120 1e8878807317373affa7f7bba4cf2f6a ""
@@ -256,14 +256,14 @@
   "/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map" 1757161713.8901 5472669 54eaf61a88b6b7896ebd0dac973cb29c ""
   "/var/lib/texmf/web2c/pdftex/pdflatex.fmt" 1757161728 8214163 90bf2776ea4d086cc093c6b5d40c7f71 ""
   "Symbol_ShortCut.tex" 1757838372.40894 17839 1989ccadc57cb7a1068982a62878c1e5 ""
-  "fig/100_fdomain_bpf.png" 1757845276.77954 127569 9ffb04ebef99d152c992cbbe9b9dd872 ""
-  "fig/100_fdomain_demod.png" 1757845276.77954 95302 a4e277888be580215f007956868b21a6 ""
-  "fig/100_tdomain_raw_processed.png" 1757845276.77954 171184 44b6168f0ae5b54a4535e2949fa4ab2a ""
+  "fig/100_fdomain_bpf.png" 1757940977.62828 127569 9ffb04ebef99d152c992cbbe9b9dd872 ""
+  "fig/100_fdomain_demod.png" 1757940977.62828 95302 a4e277888be580215f007956868b21a6 ""
+  "fig/100_tdomain_raw_processed.png" 1757940977.62828 171184 44b6168f0ae5b54a4535e2949fa4ab2a ""
   "fig/distance_vs_delta.png" 1757848182.08642 68271 53cca93f53f4cb5b52247b0a042f2b08 ""
   "fig/distance_vs_sample_theo_meas.png" 1757848176.55654 113045 1a96d738ddf9793c5dd053c1c04c4e2b ""
-  "report.aux" 1757858038.38397 2891 b44940d69b2e700c4f55e1c442a65f2a "pdflatex"
-  "report.out" 1757858038.38397 441 68d8d38ae16fe999c3e35c206a878179 "pdflatex"
-  "report.tex" 1757858035.92396 12121 fb280ebcdd9812ca37c73c92351719db ""
+  "report.aux" 1757940980.72029 2891 2e32753ed102d3adab6e29f2863d4de0 "pdflatex"
+  "report.out" 1757940980.72029 441 68d8d38ae16fe999c3e35c206a878179 "pdflatex"
+  "report.tex" 1757940978.06428 12184 6f032ae14743d88070b301d64991aa9d ""
   (generated)
   "report.aux"
   "report.log"

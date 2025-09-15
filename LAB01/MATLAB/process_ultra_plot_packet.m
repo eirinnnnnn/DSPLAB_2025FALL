@@ -5,9 +5,9 @@ function process_ultra_plot_packet(matfile, varargin)
 p = inputParser;
 addParameter(p,'Fs',160e3);      % 取樣率
 addParameter(p,'fc',40e3);       % 載波
-addParameter(p,'T',25);          % 室溫(°C)，只用來算理論 n*
+addParameter(p,'T',28);          % 室溫(°C)，只用來算理論 n*
 addParameter(p,'d_true_cm',[]);  % 如果提供，會顯示理論 n*
-addParameter(p,'lp_fc',6e3);     % 低通截止 (包絡頻寬 ~1/T_burst ≈ 5kHz，可掃 2~10k)
+addParameter(p,'lp_fc',5e3);     % 低通截止 (包絡頻寬 ~1/T_burst ≈ 5kHz，可掃 2~10k)
 addParameter(p,'plot_zoom',2.5e-3); % 峰值附近顯示窗寬(秒)，預設 ±2.5 ms
 parse(p,varargin{:});
 Fs      = p.Results.Fs;
@@ -19,33 +19,52 @@ zoom_w  = p.Results.plot_zoom;
 
 % ---- 讀檔 ----
 S = load(matfile);
+tx = double(S.tx_received_data(:));
 if isfield(S,'received_data')
     rx = double(S.received_data(:));
 elseif isfield(S,'rx')           % 後備名稱
     rx = double(S.rx(:));
 else
-    error('找不到變數 received_data（或 rx）於 %s', matfile);
+    error('variable name not matching in %s', matfile);
 end
-N = numel(rx);
-n = (0:N-2).';  t = n/Fs;
 
-% ---- DC offset ----
+%---- DC offset ----
 rx = rx(2:end);
+tx = tx(2:end);
+N  = numel(rx);
+n  = (0:N-1).';
+t  = n/Fs;
 rx_dc = rx - median(rx);
+
+% ---- 預先帶通到 fc 附近（可選，但建議）----
+bp_bw = max(2*lp_fc, 12e3);            % 例：兩倍包絡帶寬或固定值
+bp_f1 = max(10, fc - bp_bw);           % 下限 >= 0+
+bp_f2 = min(Fs/2-10, fc + bp_bw);      % 上限 < Nyquist
+dbp = designfilt('bandpassiir','FilterOrder',6, ...
+    'HalfPowerFrequency1',bp_f1,'HalfPowerFrequency2',bp_f2, ...
+    'SampleRate',Fs);
+rx_bp = filtfilt(dbp, rx_dc);          % 零相位 BPF
+
 
 % ---- 下變頻：乘上 e^{-j2πf_c t} ----
 w0 = 2*pi*fc/Fs;
 lo = exp(-1j*w0*n);
-bb = rx_dc .* lo;   % baseband complex (I + jQ)
+bb = rx_bp .* lo;   % baseband complex (I + jQ)
 
-% ---- 低通濾波（保留包絡頻帶），零相位 filtfilt ----
-% IIR Butterworth 6 階；若想更平直可改用 FIR
-d = designfilt('lowpassiir','FilterOrder',6, ...
-    'HalfPowerFrequency',lp_fc,'SampleRate',Fs);
-bb_f = filtfilt(d, real(bb)) + 1j*filtfilt(d, imag(bb));
 
-% ---- 取得包絡 ----
-env = abs(bb_f);
+% FIR: passband up to lp_fc, stopband starts at 1.6*lp_fc
+dlp = designfilt('lowpassfir', ...
+    'PassbandFrequency', lp_fc, ...
+    'StopbandFrequency', 1.6*lp_fc, ...
+    'PassbandRipple', 0.1, ...          % ~±0.05 dB
+    'StopbandAttenuation', 70, ...
+    'SampleRate', Fs);
+
+% zero-phase apply to I and Q
+bb_f = filtfilt(dlp, real(bb)) + 1j*filtfilt(dlp, imag(bb));
+env  = 2*abs(bb_f);
+
+
 
 % ---- 簡單峰值偵測（以 robust baseline 做門檻）----
 base = median(env);
@@ -55,10 +74,14 @@ env_s = movmean(env, 8);                  % 輕微平滑
 % 也可用閾值： idx = find(env_s > base + 5*noise, 1, 'first');
 
 % ---- 理論 n*（若提供距離）----
+tx_dc = tx - median(tx);
+[~, n_tx] = max(abs(tx_dc));  % 找到最大絕對值的位置
+n_meas = n_meas-n_tx;
 n_theo = NaN;
 if ~isempty(d_true)
     v = 331 + 0.6*TdegC;             % m/s
-    n_theo = (2*(d_true/100)/v) * Fs;
+    t_prop = 2*(d_true/100) / v;
+    n_theo = t_prop * Fs;
     fprintf('理論 n* = %.2f | 量測峰值 n_meas = %d | Δ=%.2f samples\n', ...
             n_theo, n_meas, n_meas - n_theo);
 else
@@ -70,12 +93,16 @@ figure('Name','Demod & Envelope'), tiledlayout(2,1,'Padding','compact','TileSpac
 
 % (A) 全域視圖
 nexttile;
-plot(t*1e3, rx, 'Color',[0.7 0.7 0.7], 'DisplayName','Raw RX');
+tL = 0; tR = zoom_w*4;
+sel = (t>=tL & t<=tR);
+plot(t(sel)*1e3, rx(sel), 'Color',[0.7 0.7 0.7], 'DisplayName','Raw RX');
 hold on; 
-plot(t*1e3, real(bb_f), 'DisplayName','Baseband (real)');
-plot(t*1e3, env, 'LineWidth',1.2, 'DisplayName','Envelope');
-xline(n_meas/Fs*1e3,'k--','Peak'); 
-if ~isnan(n_theo), xline(n_theo/Fs*1e3,'r--','n^* theo'); end
+plot(t(sel)*1e3, tx(sel), 'Color',[1, 0, 0], 'DisplayName','TX');
+plot(t(sel)*1e3, real(rx_bp(sel)), 'DisplayName','Bandpass (real)');
+% plot(t(sel)*1e3, real(bb_f(sel)), 'DisplayName','Baseband (real)');
+plot(t(sel)*1e3, env(sel), 'LineWidth',1.2, 'DisplayName','Envelope');
+xline(n_meas/Fs*1e3,'k--',"Peak", 'DisplayName',"Peak", "Color",[0.7,0.7,0.7]); 
+if ~isnan(n_theo), xline(n_theo/Fs*1e3,'r--','n^* theo', "DisplayName","Theoretical n", "Color",[0.7,0.7,0.7]); end
 hold off; grid on;
 xlabel('Time (ms)'); ylabel('Amplitude (V or a.u.)');
 title(sprintf('Demodulated (f_c=%.0f kHz), LPF=%.0f Hz', fc/1e3, lp_fc));
@@ -86,9 +113,11 @@ t0 = n_meas/Fs;
 nexttile;
 tL = max(0, t0 - zoom_w); tR = min(t(end), t0 + zoom_w);
 sel = (t>=tL & t<=tR);
-plot(t(sel)*1e3, env(sel), 'LineWidth',1.2, 'DisplayName','Envelope (zoom)');
 hold on; y = ylim;
-plot((n_meas/Fs)*1e3*[1 1], y, 'k--','DisplayName','Peak');
+plot(t(sel)*1e3, env(sel), 'LineWidth',1.2, 'DisplayName','Envelope (zoom)');
+plot(t(sel)*1e3, real(rx_bp(sel)), 'DisplayName','Bandpass (real)');
+% plot(t(sel)*1e3, real(tx_dc(sel)), 'DisplayName','Bandpass (real)');
+plot((n_meas/Fs)*1e3*[1 1], y, 'k--','DisplayName','Peak', 'Color',[0,1,0]);
 if ~isnan(n_theo)
     plot((n_theo/Fs)*1e3*[1 1], y, 'r--','DisplayName','n^* theo');
 end
@@ -96,18 +125,71 @@ hold off; grid on;
 xlabel('Time (ms)'); ylabel('Envelope');
 title('Packet (zoomed around peak)'); legend('Location','best');
 
-rx_fft = fft(rx, n);
 
-% Frequency vector for plotting
-f = (0:n-1)*(Fs/n); % Frequency vector
+%% ===================== FFT Diagnostics =====================
+nfft = 2^nextpow2(numel(rx));
 
-% Plot the magnitude of the FFT
-figure;
-plot(f, abs(rx_fft));
-title('Magnitude of FFT');
-xlabel('Frequency (Hz)');
-ylabel('|X(f)|');
-xlim([0 Fs/2]); % Limit x-axis to half the sampling frequency
-grid on;
+% ---- RF domain spectra (one-sided, 0..Fs/2) ----
+figure('Name','RF spectra & Bandpass response'); hold on; grid on;
+plot_spec_onesided(rx,    Fs, nfft, 'Raw RX');
+% plot_spec_onesided(rx_dc, Fs, nfft, 'DC-removed');
+plot_spec_onesided(rx_bp, Fs, nfft, 'After BPF');
+% Overlay BPF magnitude response (dB)
+[Hbp, Wbp] = freqz(dbp, 1, 4096, Fs);                % Wbp: 0..Fs/2 (Hz)
+plot(Wbp, 20*log10(abs(Hbp)), 'k', 'LineWidth', 1.2, 'DisplayName','BPF |H(f)| (dB)');
+% Visual markers
+xline(fc,      '--', 'fc');
+xline(fc-bp_bw,'--', 'fc-bw');
+xline(fc+bp_bw,'--', 'fc+bw');
+xlabel('Frequency (Hz)'); ylabel('Magnitude (dB)'); legend('Location','northeast');
+title('RF domain spectra (0..Fs/2) with BPF response');
+
+figure('Name','Mod & Demod'); hold on; grid on;
+plot_spec_onesided(rx,    Fs, nfft, 'Raw RX');
+% plot_spec_onesided(rx_dc, Fs, nfft, 'DC-removed');
+plot_spec_onesided(bb_f, Fs, nfft, 'demod');
+% Overlay BPF magnitude response (dB)
+[Hbp, Wbp] = freqz(dbp, 1, 4096, Fs);                % Wbp: 0..Fs/2 (Hz)
+plot(Wbp, 20*log10(abs(Hbp)), 'k', 'LineWidth', 1.2, 'DisplayName','BPF |H(f)| (dB)');
+% Visual markers
+% xline(fc,      '--', 'fc');
+% xline(fc-bp_bw,'--', 'fc-bw');
+% xline(fc+bp_bw,'--', 'fc+bw');
+xlabel('Frequency (Hz)'); ylabel('Magnitude (dB)'); legend('Location','northeast');
+title('RF domain spectra (0..Fs/2) before and after filtering & demodulation');
+
+
+% ---- Baseband spectra (complex, centered −Fs/2..Fs/2) ----
+figure('Name','Baseband spectra & Lowpass response'); hold on; grid on;
+plot_spec_centered(bb,   Fs, nfft, 'After mix (no LPF)');
+plot_spec_centered(bb_f, Fs, nfft, 'After LPF');
+% Overlay LPF magnitude response around DC (mirrored to ±f)
+[Hlp, Wlp] = freqz(dlp, 1, 4096, Fs);                 % Wlp: 0..Fs/2
+Wsym = [-flipud(Wlp); Wlp];                           % −Fs/2..Fs/2
+Hsym = [flipud(abs(Hlp)); abs(Hlp)];                  % mirror magnitude
+plot(Wsym, 20*log10(Hsym), 'k', 'LineWidth', 1.2, 'DisplayName','LPF |H(f)| (dB)');
+xline(0,'--k');                                       % DC
+xline(+lp_fc,'--','+lp\_fc'); xline(-lp_fc,'--','-lp\_fc');
+xlabel('Frequency (Hz)'); ylabel('Magnitude (dB)'); legend('Location','northeast');
+title('Baseband spectra (centered) with LPF response');
+
+function plot_spec_onesided(x, Fs, nfft, nameStr)
+% One-sided amplitude spectrum in dB for real signals (0..Fs/2)
+X = fft(x, nfft);
+% keep 0..N/2
+N2 = floor(nfft/2)+1;
+X1 = X(1:N2);
+f  = (0:N2-1)*(Fs/nfft);
+mag = 20*log10( max(abs(X1), eps) );
+plot(f, mag, 'DisplayName', nameStr);
+end
+
+function plot_spec_centered(x, Fs, nfft, nameStr)
+% Centered spectrum for (possibly complex) signals, −Fs/2..Fs/2
+X = fftshift(fft(x, nfft));
+f = (-nfft/2:nfft/2-1)*(Fs/nfft);
+mag = 20*log10( max(abs(X), eps) );
+plot(f, mag, 'DisplayName', nameStr);
+end
 
 end
