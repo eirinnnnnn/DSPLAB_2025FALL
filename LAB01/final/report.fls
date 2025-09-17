@@ -436,10 +436,6 @@ INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/amsfonts/cmextra/cmmib9.tfm
 INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/amsfonts/cmextra/cmbsy9.tfm
 INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/rsfs/rsfs10.tfm
 INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/mathabx/mathx10.tfm
-INPUT ./fig/100_tdomain_raw_processed.png
-INPUT ./fig/100_tdomain_raw_processed.png
-INPUT ./fig/100_tdomain_raw_processed.png
-INPUT ./fig/100_tdomain_raw_processed.png
 INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/cm/cmti10.tfm
 INPUT ./fig/100_fdomain_bpf.png
 INPUT ./fig/100_fdomain_bpf.png
@@ -457,6 +453,10 @@ INPUT ./fig/100_fdomain_demod.png
 INPUT ./fig/100_fdomain_demod.png
 INPUT ./fig/100_fdomain_demod.png
 INPUT ./fig/100_fdomain_demod.png
+INPUT ./fig/100_tdomain_raw_processed.png
+INPUT ./fig/100_tdomain_raw_processed.png
+INPUT ./fig/100_tdomain_raw_processed.png
+INPUT ./fig/100_tdomain_raw_processed.png
 INPUT report.aux
 INPUT ./report.out
 INPUT ./report.out

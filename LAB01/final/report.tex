@@ -202,6 +202,29 @@ We plot out the
 \end{figure}
 
 
+$$
+\Delta = a + b n_\mathrm{meas}
+$$
+
+With linear regression we found $a \simeq 53.14, b \simeq -0.02469$, and we therefore perform the correction on the measurements
+
+
+\begin{table}[h!]
+\centering
+\caption{Corrected Sample Index and Residual Distance Error (Linear Model)}
+\begin{tabular}{c|c|c|c|c}
+\hline
+True Distance (cm) & $n_{\mathrm{meas}}$ & $\hat{n}$ (Corrected) & $n^{*}$ (Theory) & Error After Correction (cm) \\
+\hline
+20  & 231 & 183.56 & 184.97 & $-0.15$ \\
+40  & 412 & 369.04 & 369.94 & $-0.10$ \\
+60  & 598 & 559.39 & 554.91 & $+0.48$ \\
+80  & 773 & 738.65 & 739.88 & $-0.13$ \\
+100 & 953 & 922.23 & 924.86 & $-0.28$ \\
+\hline
+\end{tabular}
+\end{table}
+
 % \begin{figure}[!h]
 % 	\centering 
 % 		\includegraphics[width = .75\columnwidth]{fig/100_fdomain_bb_lp.png}	
@@ -245,14 +268,6 @@ We plot out the
 \caption{block diagram: signal $\rightarrow$ BPF $\rightarrow$ demod (mixer) $\rightarrow$ LPF $\rightarrow$ envelope.}
 \label{fig:sp-chain}
 \end{figure}
-
-\begin{figure}[!h]
-	\centering 
-		\includegraphics[width = .99\columnwidth]{fig/100_tdomain_raw_processed}	
-	\caption{Time domain signal before and after filtering \& demodulation}
-\label{fig:tdom_raw and processed}
-\end{figure}
-
 
 some discussion below:
 \begin{itemize}
@@ -316,12 +331,86 @@ rx_bp = filtfilt(dbp, rx_dc);       % Zero-phase filtering
 This produces the zero-phase bandpass-filtered signal $x_{\mathrm{bpf}}(t)$.
 
 
+\subsection*{Demodulation}
+
+After bandpass filtering, we demodulate the signal by multiplying it with a complex exponential at the carrier frequency $f_c$:
+
+\begin{equation}
+x_{\mathrm{de}}(t) = x_{\mathrm{bpf}}(t) \cdot e^{-j 2 \pi f_c t}
+\end{equation}
+
+In the frequency domain, this shifts the bandpass signal to baseband, centering its spectrum around $0$ Hz.
+
+
+\begin{lstlisting}
+w0 = 2*pi*fc/Fs;             % Normalized carrier frequency (rad/sample)
+lo = exp(-1j*w0*n);          % Complex exponential for downconversion
+bb = rx_bp .* lo;            % Complex baseband signal
+\end{lstlisting}
+
 \begin{figure}[!h]
 	\centering 
 		\includegraphics[width = .75\columnwidth]{fig/100_fdomain_demod.png}	
 	\caption{demod}
 \label{fig:demod}
 \end{figure}
+
+---
+
+\subsection*{Low-Pass Filtering}
+
+The downconverted signal still contains high-frequency components due to the product term.  
+We pass $x_{\mathrm{de}}(t)$ through a low-pass filter to retain only the baseband component.
+
+\paragraph{Filter Design.}
+
+We use a FIR low-pass filter with passband edge at $f_{\mathrm{LP}} = f_{\mathrm{c}}$ and stopband starting at $1.6 f_{\mathrm{LP}}$:
+
+\begin{lstlisting}
+% FIR: passband up to lp_fc, stopband starts at 1.6*lp_fc
+dlp = designfilt('lowpassfir', ...
+    'PassbandFrequency', lp_fc, ...
+    'StopbandFrequency', 1.6*lp_fc, ...
+    'PassbandRipple', 0.1, ...          
+    'StopbandAttenuation', 70, ...
+    'SampleRate', Fs);
+
+bb_f = filtfilt(dlp, real(bb)) + 1j*filtfilt(dlp, imag(bb));
+\end{lstlisting}
+
+This yields the complex baseband signal $x_{\mathrm{bb}}(t)$ with high-frequency components removed.
+
+---
+
+\subsection*{Envelope Detection}
+
+Since the original signal is carried by $f_c$, it can be expressed as
+\[
+x(t) = A \cos(2\pi f_c t + \phi).
+\]
+
+After demodulation, we have
+\[
+\mathrm{Re}\{x_{\mathrm{de}}(t)\} = x(t)\cos(2\pi f_c t)
+= \frac{A}{2} \bigl[\cos(\phi) + \cos(4 \pi f_c t + \phi)\bigr].
+\]
+
+Thus, the envelope amplitude is halved. We compensate for this loss by multiplying by $2$ when extracting the magnitude of the analytic signal:
+
+\begin{lstlisting}
+env = 2 * abs(bb_f);
+\end{lstlisting}
+
+This produces the envelope of the baseband signal, scaled back to its original amplitude.
+
+\begin{figure}[!h]
+	\centering 
+		\includegraphics[width = .99\columnwidth]{fig/100_tdomain_raw_processed}	
+	\caption{Time domain signal before and after filtering \& demodulation}
+\label{fig:tdom_raw and processed}
+\end{figure}
+
+
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
