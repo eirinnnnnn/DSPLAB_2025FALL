@@ -157,62 +157,90 @@ In lab 1 We explored the basic configuration of $\mathrm{e}^2$ studio, ultrasoun
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Hardware configuration}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{itemize}
+\item[1] AIK-RA8D1 Development Board
 
+The core MCU of this experiment, responsible for control, signal acquisition, and data processing.
+Provides ADC pins (e.g., AN121, AN000, AN001) for analog signal sampling and transfers data to PC via USB CDC.
+Supports interfaces such as I²C and UART for peripheral communication.
 
+\item[2]HC-SR04 Ultrasonic Module
+
+Transmitter (Tx): Triggered by a high-level signal ($<$10 $\mu$s), it emits 8 pulses at 40 kHz.
+Receiver (Rx): Captures the reflected signal, which is sampled by the MCU’s ADC.
+
+Distance is calculated through time-of-flight (ToF) measurement, considering the speed of sound in air 
+V=331+0.6t m/s.
+
+\item[3]DA14531 BLE Module
+
+Provides Bluetooth Low Energy (BLE) communication capability.
+Enables UART $\rightleftarrows$ BLE data transmission between the MCU and mobile applications (e.g., GATTBrowser).
+\end{itemize}
+\begin{figure}[!h]
+	\centering
+	\subcaptionbox{sticking the cheap ultrasouond module onto the 10k board
+		\label{fig:reflector}}{
+		\includegraphics[height=0.45\columnwidth]{fig/S__59039762_0.jpg}}
+	\subcaptionbox{measurement experiments setups. We use our tablet as the reflection board, and the distance is referenced with the table pad.
+		\label{fig:stick_on_10k_board}}{
+		\includegraphics[height=0.45\columnwidth]{fig/S__59039761_0.jpg}}
+	\caption{hardware configurations}
+\label{fig:real_world_image}
+\end{figure}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Error Source Analysis}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-
-We inspect the relative distance and try to determine the model of the error.
+We analyzed the measured peak indices across multiple distances and compared them with the theoretical sample indices $n^*$ computed from the speed of sound at $T = 25^\circ\mathrm{C}$. This allowed us to examine the trend of the measurement error and construct a model for calibration.
 
 \begin{table}[h!]
 \centering
 \caption{Relative Distance Comparison (Measured vs. Theoretical)}
 \begin{tabular}{|c|c|c|c|c|c|c|}
 \hline
-Pair (cm) & $n^*_{\mathrm{theory}}$ & $n_{\mathrm{meas}}$ & 
+Pair (cm) & $n^*_{\mathrm{theory}}$ & $n_{\mathrm{meas}}$ &
 $\Delta n^*_{\mathrm{theory}}$ & $\Delta n_{\mathrm{meas}}$ &
-$\frac{\Delta n_{\mathrm{meas}}}{\Delta n^*_{\mathrm{theory}}}$ & 
+$\frac{\Delta n_{\mathrm{meas}}}{\Delta n^*_{\mathrm{theory}}}$ &
 Relative Error (\%) \\
 \hline
-20→40 & 184.97$\rightarrow$369.94 & 231$\rightarrow$412 & 184.97 & 181 & 0.979 & -2.1 \\
-40→60 & 369.94$\rightarrow$554.91 & 412$\rightarrow$598 & 184.97 & 186 & 1.006 & +0.6 \\
-60→80 & 554.91$\rightarrow$739.88 & 598$\rightarrow$773 & 184.97 & 175 & 0.946 & -5.4 \\
-80→100 & 739.88$\rightarrow$924.86 & 773$\rightarrow$953 & 184.97 & 180 & 0.973 & -2.7 \\
+20$\rightarrow$40 & 184.97$\rightarrow$369.94 & 231$\rightarrow$412 & 184.97 & 181 & 0.979 & $-2.1$ \\
+40$\rightarrow$60 & 369.94$\rightarrow$554.91 & 412$\rightarrow$598 & 184.97 & 186 & 1.006 & $+0.6$ \\
+60$\rightarrow$80 & 554.91$\rightarrow$739.88 & 598$\rightarrow$773 & 184.97 & 175 & 0.946 & $-5.4$ \\
+80$\rightarrow$100 & 739.88$\rightarrow$924.86 & 773$\rightarrow$953 & 184.97 & 180 & 0.973 & $-2.7$ \\
 \hline
 \end{tabular}
 \end{table}
 
-We retrieve back $n_\mathrm{meas}$ by aligning the starting sample by the maximum Tx data 
+The measured peak indices $n_{\mathrm{meas}}$ were aligned relative to the start of transmission, determined by the maximum slope of the Tx waveform. We then plotted $n_{\mathrm{meas}}$ against $n^*$, as well as the corresponding sample index error $\Delta n = n_{\mathrm{meas}} - n^*$, as shown below.
 
-We plot out the 
 \begin{figure}[!h]
-	\centering 
-	\subcaptionbox{Measured Peak and the theoretical sample (T=25)
-		\label{fig:sample_meas_theo}} {
-		\includegraphics[width = .45\columnwidth]{fig/distance_vs_sample_theo_meas.png}	
-	}
-	\subcaptionbox{Error vs. distance 
-		\label{fig:error_vs_dist}} {
-		\includegraphics[width = .45\columnwidth]{fig/distance_vs_delta.png}
-	}
-	\caption{Comparing robust and non-robust design for linear precoder}
+	\centering
+	\subcaptionbox{Measured peak index and theoretical $n^*$ at $T=25^\circ\mathrm{C}$%
+		\label{fig:sample_meas_theo}}{
+		\includegraphics[width=0.45\columnwidth]{fig/distance_vs_sample_theo_meas.png}}
+	\subcaptionbox{Sample index error vs. distance%
+		\label{fig:error_vs_dist}}{
+		\includegraphics[width=0.45\columnwidth]{fig/distance_vs_delta.png}}
+	\caption{Comparison between measured peak indices and theoretical sample indices.}
 \label{fig:robust_lin}
 \end{figure}
 
+From Fig.~\ref{fig:error_vs_dist}, we observe that the error $\Delta n$ decreases approximately linearly as distance increases, 
+consistent with a fixed system delay plus a small distance-dependent effect. 
+Instead of the usual choice of a constant model, we found out that the error is related to the distance. 
+We therefore model the error as
 
-$$
-\Delta = a + b n_\mathrm{meas}
-$$
+\[
+\Delta n = a + b\,n_{\mathrm{meas}},
+\]
 
-With linear regression we found $a \simeq 53.14, b \simeq -0.02469$, and we therefore perform the correction on the measurements
-
+and use linear regression to estimate $a \simeq 53.14$ and $b \simeq -0.02469$. Applying this model, we compute corrected sample indices $\hat{n} = n_{\mathrm{meas}} - \Delta n$, yielding the results summarized below.
 
 \begin{table}[h!]
 \centering
 \caption{Corrected Sample Index and Residual Distance Error (Linear Model)}
-\begin{tabular}{c|c|c|c|c}
+\begin{tabular}{|c|c|c|c|c|}
 \hline
 True Distance (cm) & $n_{\mathrm{meas}}$ & $\hat{n}$ (Corrected) & $n^{*}$ (Theory) & Error After Correction (cm) \\
 \hline
@@ -222,20 +250,51 @@ True Distance (cm) & $n_{\mathrm{meas}}$ & $\hat{n}$ (Corrected) & $n^{*}$ (Theo
 80  & 773 & 738.65 & 739.88 & $-0.13$ \\
 100 & 953 & 922.23 & 924.86 & $-0.28$ \\
 \hline
-\end{tabular}
+\end{tabular}\label{tab:corrected_indices}
 \end{table}
 
-% \begin{figure}[!h]
-% 	\centering 
-% 		\includegraphics[width = .75\columnwidth]{fig/100_fdomain_bb_lp.png}	
-% 	\caption{}
-% \label{fig:bb_lp}
-% \end{figure}
+The corrected indices significantly reduce the bias, with all residual distance errors falling within $\pm 0.5\ \mathrm{cm}$, demonstrating that the linear error model is effective.
+
+To translate the measured sample index back into a physical distance, we use the relation between
+the sample index $n$, the sampling frequency $F_s$, and the speed of sound $v$.
+Each sample corresponds to a time increment of
+\[
+T_s = \frac{1}{F_s},
+\]
+so the round-trip time corresponding to $n$ samples is
+\[
+t = n \, T_s = \frac{n}{F_s}.
+\]
+
+Assuming a two-way (Tx–Rx) propagation path, the one-way distance is then given by
+\[
+\hat{d} = \frac{v \, t}{2} = \frac{v}{2 F_s}\, n.
+\]
+
+For our experiment at $T = 25^\circ\mathrm{C}$, we use
+$v = 331 + 0.6T \approx 346\ \mathrm{m/s} = 34{,}600\ \mathrm{cm/s}$ and
+$F_s = 160\ \mathrm{kHz}$, which yields the conversion factor
+\[
+k = \frac{v}{2F_s}
+= \frac{34{,}600}{2 \times 160{,}000}
+\simeq 0.1081\ \frac{\mathrm{cm}}{\mathrm{sample}}.
+\]
+
+Thus, the estimated distance from a measured sample index $n_{\mathrm{meas}}$ (or its corrected version $\hat{n}$) is
+\[
+\hat{d} = k \, n.
+\]
+
+This linear relation allows us to directly convert the corrected sample indices from
+Table~\ref{tab:corrected_indices} into absolute distance estimates and to compute residual
+errors in centimeters for performance evaluation.
+
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Signal Processing}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Our complete receiver design is summarized as follows.
 \begin{figure}[h!]
 \centering
 \begin{tikzpicture}[node distance=2.0cm and 1.4cm]
@@ -269,15 +328,11 @@ True Distance (cm) & $n_{\mathrm{meas}}$ & $\hat{n}$ (Corrected) & $n^{*}$ (Theo
 \label{fig:sp-chain}
 \end{figure}
 
-some discussion below:
-\begin{itemize}
-	\item \textbf{Correct "Detection" threshold. } The physically correct measure of the time of flight (TOF) would be the \textit{wavefront} of the received signal.
-\end{itemize}
 
 \begin{figure}[!h]
 	\centering 
 		\includegraphics[width = .75\columnwidth]{fig/100_fdomain_bpf.png}	
-	\caption{bpf}
+	\caption{the Band-pass filter at the first stage. notice the FFT is in dB scale so it does not look exactly the same as what TAs have.}
 \label{fig:bpf}
 \end{figure}
 
@@ -301,16 +356,6 @@ where the carrier frequency $f_c = 40~\mathrm{kHz}$ and the signal bandwidth is
 \[
 f_w = \frac{1}{T_{\mathrm{burst}}} \approx 5~\mathrm{kHz}.
 \]
-
-To ensure the filter design remains within valid frequency bounds, we compute:
-\[
-\begin{aligned}
-\texttt{bp\_bw} &= \max\!\bigl(2f_w,\, 12~\mathrm{kHz}\bigr),\\[4pt]
-\texttt{bp\_f1} &= \max\!\bigl(10,\, f_c - \texttt{bp\_bw}\bigr),\\[4pt]
-\texttt{bp\_f2} &= \min\!\bigl(\tfrac{F_s}{2}-10,\, f_c + \texttt{bp\_bw}\bigr),
-\end{aligned}
-\]
-where $F_s$ is the sampling frequency.
 
 \paragraph{MATLAB Implementation.}
 The filter is implemented and applied using MATLAB as follows:
@@ -351,7 +396,7 @@ bb = rx_bp .* lo;            % Complex baseband signal
 \begin{figure}[!h]
 	\centering 
 		\includegraphics[width = .75\columnwidth]{fig/100_fdomain_demod.png}	
-	\caption{demod}
+	\caption{the final Demodulated signal after all the filtering}
 \label{fig:demod}
 \end{figure}
 
@@ -364,7 +409,7 @@ We pass $x_{\mathrm{de}}(t)$ through a low-pass filter to retain only the baseba
 
 \paragraph{Filter Design.}
 
-We use a FIR low-pass filter with passband edge at $f_{\mathrm{LP}} = f_{\mathrm{c}}$ and stopband starting at $1.6 f_{\mathrm{LP}}$:
+We use a FIR low-pass filter with passband edge at $f_{\mathrm{LP}} = f_{\mathrm{c}}$ and stopband at $1.6 f_{\mathrm{LP}}$:
 
 \begin{lstlisting}
 % FIR: passband up to lp_fc, stopband starts at 1.6*lp_fc
@@ -380,8 +425,6 @@ bb_f = filtfilt(dlp, real(bb)) + 1j*filtfilt(dlp, imag(bb));
 
 This yields the complex baseband signal $x_{\mathrm{bb}}(t)$ with high-frequency components removed.
 
----
-
 \subsection*{Envelope Detection}
 
 Since the original signal is carried by $f_c$, it can be expressed as
@@ -389,13 +432,12 @@ Since the original signal is carried by $f_c$, it can be expressed as
 x(t) = A \cos(2\pi f_c t + \phi).
 \]
 
-After demodulation, we have
 \[
 \mathrm{Re}\{x_{\mathrm{de}}(t)\} = x(t)\cos(2\pi f_c t)
 = \frac{A}{2} \bigl[\cos(\phi) + \cos(4 \pi f_c t + \phi)\bigr].
 \]
 
-Thus, the envelope amplitude is halved. We compensate for this loss by multiplying by $2$ when extracting the magnitude of the analytic signal:
+Thus, the envelope amplitude is halved. We compensate for this loss by multiplying by 
 
 \begin{lstlisting}
 env = 2 * abs(bb_f);
@@ -413,34 +455,14 @@ This produces the envelope of the baseband signal, scaled back to its original a
 
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\appendix{}
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+\pagebreak
 
 \begin{thebibliography}{99}
 
-\bibitem{chang2015semm}
-C.-Y. Chang and C.C. Fung, ``Sparsity enhanced mismatch model for robust spatial intercell interference cancelation in heterogeneous networks,'' \emph{IEEE Trans. on Communications}, vol. 63(1), pp. 125-139, Jan. 2015.
-
-\bibitem{ipr_realworld}
-I. P. Roberts, Y. Zhang, T. Osman, and A. Alkhateeb, ``Real-world evaluation of full-duplex millimeter wave communication systems,'' \emph{IEEE Trans. Wireless Commun.}, early access, Mar. 2024.
-
-\bibitem{ShenYu2018}
-K.~Shen and W.~Yu, ``Fractional Programming for Communication Systems—Part I: Power Control and Beamforming,'' \textit{IEEE Transactions on Signal Processing}, vol.~66, no.~10, pp.~2616-2630, May 15, 2018, doi: 10.1109/TSP.2018.2812733.
-
-\bibitem{ho2020denoising}
-J.~Ho, A.~Jain, and P.~Abbeel, ``Denoising diffusion probabilistic models,'' 
-\emph{Advances in Neural Information Processing Systems}, vol.~33, pp.~6840--6851, 2020.
-
-\bibitem{o2017dl_phy_layer}
-T.~O’Shea and J.~Hoydis, ``An introduction to deep learning for the physical layer,'' 
-\emph{IEEE Transactions on Cognitive Communications and Networking}, vol.~3, no.~4, pp.~563--575, 2017.
-
-\bibitem{Servetnyk2022} 
-M.~Servetnyk and C.~C.~Fung, ``Distributed fronthaul-constrained joint transmission design and selection using augmented consensus-based dual decomposition,'' \textit{Journal of Communications and Networks}, vol.~24, no.~4, pp.~419--437, Aug.~2022, doi: \href{https://doi.org/10.23919/JCN.2022.000030}{10.23919/JCN.2022.000030}.
+\bibitem{oppenheim2010dsp}
+A.~V.~Oppenheim and R.~W.~Schafer,
+\textit{Discrete-Time Signal Processing}, 3rd~ed.
+Upper Saddle River, NJ, USA: Pearson, 2010.
 
 \end{thebibliography}
 \end{document}
