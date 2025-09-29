@@ -5,5 +5,5 @@ com.renesas.cdt.launch.dsf.launching.gdbLocalLaunchDescriptorType\:ADC_test_2025
 com.renesas.cdt.launch.dsf.launching.gdbLocalLaunchDescriptorType\:ADC_test_20250903\ Debug_Flat/activeLaunchTarget=null\:---
 com.renesas.cdt.launch.dsf.launching.gdbLocalLaunchDescriptorType\:lab0_aik_ra8d1_adc_usb_project\ Debug_Flat/activeLaunchMode=debug
 com.renesas.cdt.launch.dsf.launching.gdbLocalLaunchDescriptorType\:lab0_aik_ra8d1_adc_usb_project\ Debug_Flat/activeLaunchTarget=null\:---
-configDescList=com.renesas.cdt.launch.dsf.launching.gdbLocalLaunchDescriptorType\:ADC_test_20250903 Debug_Flat,com.renesas.cdt.launch.dsf.launching.gdbLocalLaunchDescriptorType\:lab0_aik_ra8d1_adc_usb_project Debug_Flat
+configDescList=com.renesas.cdt.launch.dsf.launching.gdbLocalLaunchDescriptorType\:lab0_aik_ra8d1_adc_usb_project Debug_Flat
 eclipse.preferences.version=1
