@@ -10,33 +10,49 @@
 \@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Direct digital processing with the oversampled signal}}{1}{figure.caption.1}\protected@file@percent }
 \providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
 \newlabel{tikz:os_sig_pipe}{{1}{1}{Direct digital processing with the oversampled signal}{figure.caption.1}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces \relax }}{1}{figure.caption.2}\protected@file@percent }
-\newlabel{fig:os_freq}{{2}{1}{\relax }{figure.caption.2}{}}
+\@writefile{toc}{\contentsline {paragraph}{Implementations and results}{1}{section*.2}\protected@file@percent }
 \newlabel{lst:ecg_filter}{{1}{1}{Baseline and 60 Hz cleanup with bandpass filtering}{lstlisting.1}{}}
 \@writefile{lol}{\contentsline {lstlisting}{\numberline {1}{\ignorespaces Baseline and 60 Hz cleanup with bandpass filtering.}}{1}{lstlisting.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Downsampling}{2}{subsection.3.2}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Signal Processing Pipeline with Downsampling}}{2}{figure.caption.3}\protected@file@percent }
-\newlabel{tikz:ds_sig_pipe}{{3}{2}{Signal Processing Pipeline with Downsampling}{figure.caption.3}{}}
-\newlabel{lst:aa_filter}{{2}{2}{Anti-alias low-pass filtering before downsampling}{lstlisting.2}{}}
-\@writefile{lol}{\contentsline {lstlisting}{\numberline {2}{\ignorespaces Anti-alias low-pass filtering before downsampling.}}{2}{lstlisting.2}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces \relax }}{2}{figure.caption.4}\protected@file@percent }
-\newlabel{fig:freq_ds_os_cmp}{{4}{2}{\relax }{figure.caption.4}{}}
-\newlabel{lst:downsample}{{3}{2}{Direct and averaged downsampling}{lstlisting.3}{}}
-\@writefile{lol}{\contentsline {lstlisting}{\numberline {3}{\ignorespaces Direct and averaged downsampling.}}{2}{lstlisting.3}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces \relax }}{3}{figure.caption.5}\protected@file@percent }
-\newlabel{fig:ds_freq_avg_vs_null}{{5}{3}{\relax }{figure.caption.5}{}}
-\newlabel{lst:downsample_filter}{{4}{3}{High-pass, notch, and band-pass filtering at the reduced sampling rate}{lstlisting.4}{}}
-\@writefile{lol}{\contentsline {lstlisting}{\numberline {4}{\ignorespaces High-pass, notch, and band-pass filtering at the reduced sampling rate.}}{3}{lstlisting.4}\protected@file@percent }
-\newlabel{lst:upsample}{{5}{3}{Reconstructing the signal to 1 kHz via interpolation}{lstlisting.5}{}}
-\@writefile{lol}{\contentsline {lstlisting}{\numberline {5}{\ignorespaces Reconstructing the signal to 1 kHz via interpolation.}}{3}{lstlisting.5}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {4}ECG Signal Discussion }{3}{section.4}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Our ECG Signals}{3}{subsection.4.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Lead Comparison}{3}{subsection.4.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Direct DSP techniques on the oversampled signal in frequency domain}}{2}{figure.caption.3}\protected@file@percent }
+\newlabel{fig:os_freq}{{2}{2}{Direct DSP techniques on the oversampled signal in frequency domain}{figure.caption.3}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Direct DSP techniques on the oversampled signal in time domain}}{2}{figure.caption.4}\protected@file@percent }
+\newlabel{fig:os_time_cmp}{{3}{2}{Direct DSP techniques on the oversampled signal in time domain}{figure.caption.4}{}}
+\@writefile{toc}{\contentsline {paragraph}{Distortion at the Beginning and End of the IIR-filtered Signal.}{2}{section*.5}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Signals with no DC removal narrowband filter}}{3}{figure.caption.6}\protected@file@percent }
+\newlabel{fig:os_time_cmp_nohp}{{4}{3}{Signals with no DC removal narrowband filter}{figure.caption.6}{}}
+\@writefile{toc}{\contentsline {paragraph}{Harmonic Series of noise.}{3}{section*.7}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Downsampling}{3}{subsection.3.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces Signal Processing Pipeline with Downsampling}}{3}{figure.caption.8}\protected@file@percent }
+\newlabel{tikz:ds_sig_pipe}{{5}{3}{Signal Processing Pipeline with Downsampling}{figure.caption.8}{}}
+\newlabel{lst:aa_filter}{{2}{3}{Anti-alias low-pass filtering before downsampling}{lstlisting.2}{}}
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {2}{\ignorespaces Anti-alias low-pass filtering before downsampling.}}{3}{lstlisting.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces \relax }}{4}{figure.caption.9}\protected@file@percent }
+\newlabel{fig:freq_ds_os_cmp}{{6}{4}{\relax }{figure.caption.9}{}}
+\newlabel{lst:downsample}{{3}{4}{Direct and averaged downsampling}{lstlisting.3}{}}
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {3}{\ignorespaces Direct and averaged downsampling.}}{4}{lstlisting.3}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces \relax }}{4}{figure.caption.10}\protected@file@percent }
+\newlabel{fig:ds_freq_avg_vs_null}{{7}{4}{\relax }{figure.caption.10}{}}
+\newlabel{lst:downsample_filter}{{4}{4}{High-pass, notch, and band-pass filtering at the reduced sampling rate}{lstlisting.4}{}}
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {4}{\ignorespaces High-pass, notch, and band-pass filtering at the reduced sampling rate.}}{4}{lstlisting.4}\protected@file@percent }
+\newlabel{lst:upsample}{{5}{5}{Reconstructing the signal to 1 kHz via interpolation}{lstlisting.5}{}}
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {5}{\ignorespaces Reconstructing the signal to 1 kHz via interpolation.}}{5}{lstlisting.5}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {8}{\ignorespaces Frequency domain signal comparison of the two downsampling techniques, before and after filtering}}{5}{figure.caption.11}\protected@file@percent }
+\newlabel{fig:ds_freq_filt}{{8}{5}{Frequency domain signal comparison of the two downsampling techniques, before and after filtering}{figure.caption.11}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {9}{\ignorespaces Time domain signal comparison of the three different signal processing pipelines (Oversampling, Direct downsampling and Averaging downsampling)}}{6}{figure.caption.12}\protected@file@percent }
+\newlabel{fig:ds_time}{{9}{6}{Time domain signal comparison of the three different signal processing pipelines (Oversampling, Direct downsampling and Averaging downsampling)}{figure.caption.12}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3}Discussion on Oversampling techniques}{6}{subsection.3.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {4}ECG Signal Discussion }{6}{section.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Our ECG Signals}{6}{subsection.4.1}\protected@file@percent }
+\newlabel{fig:eirin}{{10a}{6}{\centering Eirin's ECG signal. \\$V_\text {pp} = 59$mV, BPM = $77.4$}{figure.caption.13}{}}
+\newlabel{sub@fig:eirin}{{a}{6}{\centering Eirin's ECG signal. \\$V_\text {pp} = 59$mV, BPM = $77.4$}{figure.caption.13}{}}
+\newlabel{fig:arthur}{{10b}{6}{\centering Arthur's ECG signal. \\$V_\text {pp} = 44$mV, BPM = $82.2$}{figure.caption.13}{}}
+\newlabel{sub@fig:arthur}{{b}{6}{\centering Arthur's ECG signal. \\$V_\text {pp} = 44$mV, BPM = $82.2$}{figure.caption.13}{}}
+\newlabel{fig:kevin}{{10c}{6}{\centering Kevin's ECG signal. \\$V_\text {pp} = 100$mV, BPM = $91.2$}{figure.caption.13}{}}
+\newlabel{sub@fig:kevin}{{c}{6}{\centering Kevin's ECG signal. \\$V_\text {pp} = 100$mV, BPM = $91.2$}{figure.caption.13}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {10}{\ignorespaces Our own ECG signals.}}{6}{figure.caption.13}\protected@file@percent }
+\newlabel{fig:real_world_image}{{10}{6}{Our own ECG signals}{figure.caption.13}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Lead Comparison}{6}{subsection.4.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {11}{\ignorespaces Comparing different Lead}}{7}{figure.caption.14}\protected@file@percent }
+\newlabel{fig:lead_time_cmp}{{11}{7}{Comparing different Lead}{figure.caption.14}{}}
 \bibcite{oppenheim2010dsp}{1}
-\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces Frequency domain signal comparison of the two downsampling techniques, before and after filtering}}{4}{figure.caption.6}\protected@file@percent }
-\newlabel{fig:ds_freq_filt}{{6}{4}{Frequency domain signal comparison of the two downsampling techniques, before and after filtering}{figure.caption.6}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces Time domain signal comparison of the three different signal processing pipelines (Oversampling, Direct downsampling and Averaging downsampling)}}{4}{figure.caption.7}\protected@file@percent }
-\newlabel{fig:ds_time}{{7}{4}{Time domain signal comparison of the three different signal processing pipelines (Oversampling, Direct downsampling and Averaging downsampling)}{figure.caption.7}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {8}{\ignorespaces Comparing different Lead}}{5}{figure.caption.8}\protected@file@percent }
-\newlabel{fig:lead_time_cmp}{{8}{5}{Comparing different Lead}{figure.caption.8}{}}
-\gdef \@abspage@last{5}
+\gdef \@abspage@last{8}

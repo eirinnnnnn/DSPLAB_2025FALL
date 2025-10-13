@@ -161,18 +161,18 @@ In lab2 we explored the design of ECG signal processing and had a nice journey e
 
 \subsection{Direct Digital Filtering on Oversampled Signal}
 
+The first attempt of our signal processing was to design a direct filtering on the oversampled signal. The basic structures were concluded by the following block diagram.
 
+We targeted on retaining the desired signal around $0.7\sim 30$Hz, and focusing on filtering out the known 60Hz noise from the power cord.
 \begin{figure}[h]
   \centering
   \begin{tikzpicture}[node distance=1.6cm]
     \node[io]    (in)   {$x_\text{in}(t)$};
-    \node[block, right=of in]   (hp)    {HPF\\($\geq$0.5\,Hz)};
-    \node[block, right=of hp]   (notch) {60\,Hz Notch\\(IIR)};
+    \node[block, right=of in]   (notch) {60\,Hz Notch\\(IIR)};
     \node[block, right=of notch] (lpf)  {BPF\\(0.7$\sim$30\,Hz)};
     \node[io, right=of lpf]      (out)    {$x_\text{out}(t)$};
 
-    \draw[->] (in) -- (hp);
-    \draw[->] (hp) -- (notch);
+    \draw[->] (in) -- (notch);
     \draw[->] (notch) -- (lpf);
     \draw[->] (lpf) -- (out);
   \end{tikzpicture}
@@ -180,32 +180,56 @@ In lab2 we explored the design of ECG signal processing and had a nice journey e
   \label{tikz:os_sig_pipe}
 \end{figure}
 
-\begin{figure}[!h]
-	\centering 
-		\includegraphics[width = .95\columnwidth]{fig/freq_direct_filt.png}
-	\caption{}
-\label{fig:os_freq}
-\end{figure}
-
+\paragraph{Implementations and results}
+We design the following parts: we first notch down the 60Hz noise peak, and then pass the signal through a bandpass filter.  
 \begin{lstlisting}[caption={Baseline and 60 Hz cleanup with bandpass filtering.}, label={lst:ecg_filter}]
-%% ===================== 2) Baseline & 60 Hz cleanup ======================
-hpFc = 0.7;  % ECG above ~0.7 Hz
-hp = designfilt('highpassiir','FilterOrder',4, ...
-    'HalfPowerFrequency',hpFc,'SampleRate',Fs,'DesignMethod','butter');
-
+%% ===================== 1) 60 Hz notch ======================
 notch60 = designfilt('bandstopiir','FilterOrder',2, ...
     'HalfPowerFrequency1',56,'HalfPowerFrequency2',57, ...
     'DesignMethod','butter','SampleRate',Fs);
 
-x_hp  = filtfilt(hp, x);
-x_n60 = filtfilt(notch60, x_hp);
-
-%% ===================== 3) Bandpass 0.7~30 Hz ============================
+%% ===================== 2) Bandpass 0.7~30 Hz ============================
 bp = designfilt('bandpassiir','FilterOrder',6, ...
     'HalfPowerFrequency1',0.7,'HalfPowerFrequency2',30, ...
     'DesignMethod','butter','SampleRate',Fs);
-x_bp = filtfilt(bp, x_n60);
 \end{lstlisting}
+
+We observe the filtered signal with the orignal signal (Blue) at different stages(Orange and Yellow). We can see that with the 60Hz notch we can effectively lower the noise from 55.7dB to 4.01dB.
+
+\begin{figure}[H]
+	\centering 
+		\includegraphics[width = .95\columnwidth]{fig/freq_direct_filt.png}
+	\caption{Direct DSP techniques on the oversampled signal in frequency domain}
+\label{fig:os_freq}
+\end{figure}
+
+The filtered signal is already pretty ideal.
+
+\begin{figure}[H]
+	\centering 
+		\includegraphics[width = .95\columnwidth]{fig/time_origin_filt.png}
+	\caption{Direct DSP techniques on the oversampled signal in time domain}
+\label{fig:os_time_cmp}
+\end{figure}
+
+This is the first time we deal with natural source signals. We try to discuss about some interesting things we've found out in this part.
+
+\paragraph{Distortion at the Beginning and End of the IIR-filtered Signal.}
+
+In the reconstructed ECG signal we can observe an obious distortion at the head and tail of the signals. 
+In the implementation we're already using \lstinline|filtfilt()|, so the forward and backward filtering should already eliminate the zero phase distortion.
+
+This is caused by the narrowband filter we're using in the DSP process. The DC removal filter was designed to be a 0.7Hz highpass iir filter, which naturally has a long time constants ($1/0.7 \sim 1.43s$). 
+The abrupted signals at the start and end makes the mirrored signal not so much continuous, hence the settling lasts long enough to distord the signal. If we pull out the DC remover we can observe a smoother pattern.
+\begin{figure}[H]
+	\centering 
+		\includegraphics[width = .95\columnwidth]{fig/time_origin_filt_nohp.png}
+	\caption{Signals with no DC removal narrowband filter}
+\label{fig:os_time_cmp_nohp}
+\end{figure}
+
+\paragraph{Harmonic Series of noise.}
+In addition to the 60 Hz fundamental noise, the spectrum exhibits harmonics at integer multiples of 60 Hz. These arise from nonlinear coupling and rectification of power-line interference in the measurement electronics. The smaller peaks surrounding each harmonic are modulation or spectral-leakage sidebands caused by the interaction between power-line hum and the ECG baseline or by slight frequency mismatch with the FFT window.
 
 \subsection{Downsampling}
 
@@ -237,7 +261,7 @@ x_aa = filtfilt(aa, x);
 \end{lstlisting}
 
 We can see, as in our digital signal processing lectures suggested, the downsapling in time domain gives us a stretch in the frequency domain. 
-\begin{figure}[!h]
+\begin{figure}[H]
 	\centering 
 		\includegraphics[width = .95\columnwidth]{fig/freq_downsamp_origin_cmp.png}
 	\caption{}
@@ -259,7 +283,7 @@ x_ds_avg  = mean(x_blocks,1).';
 
 We can see an obvious difference on the ambient noise level. (with the normalized frequency axis by $F_s/M$)
 
-\begin{figure}[!h]
+\begin{figure}[H]
 	\centering 
 		\includegraphics[width = .95\columnwidth]{fig/freq_downsamp_avg_vs_null.png}
 	\caption{}
@@ -291,14 +315,14 @@ x_up      = interp1(t_ds, x_ds_bp, t_trim, 'pchip', 'extrap');
 x_up_avg  = interp1(t_ds, x_ds_bp_avg, t_trim, 'pchip', 'extrap');
 \end{lstlisting}
 
-\begin{figure}[!h]
+\begin{figure}[H]
 	\centering 
 		\includegraphics[width = .95\columnwidth]{fig/freq_downsamp_filt.png}
 	\caption{Frequency domain signal comparison of the two downsampling techniques, before and after filtering}
 \label{fig:ds_freq_filt}
 \end{figure}
 
-\begin{figure}[!h]
+\begin{figure}[H]
 	\centering 
 		\includegraphics[width = .95\columnwidth]{fig/time_downsamp_zoom.png}
 	\caption{Time domain signal comparison of the three different signal processing pipelines (Oversampling, Direct downsampling and Averaging downsampling)}
@@ -306,6 +330,7 @@ x_up_avg  = interp1(t_ds, x_ds_bp_avg, t_trim, 'pchip', 'extrap');
 \end{figure}
 We can observe that the downsampling signals kept more details of the ECG signals, especially obvious on the wiggles of the T peak part.
 
+\subsection{Discussion on Oversampling techniques}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{ECG Signal Discussion }
@@ -313,8 +338,31 @@ We can observe that the downsampling signals kept more details of the ECG signal
 
 \subsection{Our ECG Signals}
 
+\begin{figure}[!h]
+	\centering
+	\subcaptionbox{\centering Eirin's ECG signal. \\$V_\text{pp} = 59$mV, BPM = $77.4$
+		\label{fig:eirin}}{
+		\includegraphics[width=0.31\columnwidth]{fig/eirin_77_4_0059.png}}
+	\subcaptionbox{\centering Arthur's ECG signal. \\$V_\text{pp} = 44$mV, BPM = $82.2$
+		\label{fig:arthur}}{
+		\includegraphics[width=0.31\columnwidth]{fig/arthur_82_2_0044.png}}
+	\subcaptionbox{\centering Kevin's ECG signal. \\$V_\text{pp} = 100$mV, BPM = $91.2$
+		\label{fig:kevin}}{
+		\includegraphics[width=0.31\columnwidth]{fig/kev_91_2_0100.png}}
+	\caption{Our own ECG signals.}
+\label{fig:real_world_image}
+\end{figure}
+
 
 \subsection{Lead Comparison}
+
+Based on the electrode configuration (Lead I = LA-RA, Lead II = LL-RA, Lead III = LL-LA), the recorded ECG signals show that Lead I has the largest and positive waveform, while Lead II and Lead III exhibit smaller amplitudes with inverted (negative) R-waves. This polarity difference can be explained by the relative orientation between the heart's depolarization vector and each lead's axis. When the cardiac vector points toward a lead's positive electrode, the signal appears positive; when it points away, the waveform inverts. Hence, the strong positive Lead I suggests that the heart's electrical axis was aligned closer to the LA-RA direction.
+
+We considered both technical and physiological explanations. The literature shows that limb-lead reversal and electrode misplacement commonly produce inverted limb leads; therefore, wiring and electrode polarity should always be verified first. Instrument configuration issues—such as reversed amplifier inputs, inconsistent gain, or channel inversion—may also contribute to polarity changes.
+
+Moreover, recent studies (The Anatolian Journal of Cardiology) indicate that electrode distance to the cardiac center correlates inversely with QRS amplitude; torso or modified limb placements can increase amplitude in certain leads. This supports the hypothesis that the closer proximity of the LA-RA electrodes to the heart could result in a larger Lead I amplitude compared with Leads II and III. In addition, environmental noise and baseline drift may further reduce the clarity of the weaker leads.
+
+Overall, the observed differences highlight the sensitivity of ECG measurements to electrode polarity, contact quality, and spatial placement. Even small variations in electrode position or wiring can significantly alter signal polarity and amplitude.
 
 \begin{figure}[!h]
 	\centering 
