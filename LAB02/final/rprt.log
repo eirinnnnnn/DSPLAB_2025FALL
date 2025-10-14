@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian) (preloaded format=pdflatex 2025.9.6)  13 OCT 2025 11:24
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian) (preloaded format=pdflatex 2025.9.6)  14 OCT 2025 19:36
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -923,97 +923,132 @@ LaTeX Font Info:    Trying to load font information for U+rsfs on input line 140
  (/usr/share/texlive/texmf-dist/tex/latex/jknapltx/ursfs.fd
 File: ursfs.fd 1998/03/24 rsfs font definition file (jk)
 )
-Package hyperref Info: bookmark level for unknown lstlisting defaults to 0 on input line 185.
-<fig/freq_direct_filt.png, id=43, 1445.4pt x 652.3572pt>
+<fig/electric_design.jpg, id=51, 1337.99875pt x 1003.75pt>
+File: fig/electric_design.jpg Graphic file (type jpg)
+<use fig/electric_design.jpg>
+Package pdftex.def Info: fig/electric_design.jpg  used on input line 154.
+(pdftex.def)             Requested size: 373.93962pt x 280.52734pt.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 164.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `subscript' on input line 164.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 164.
+
+[1
+
+{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map} <./fig/electric_design.jpg>]
+<fig/vout_rg.jpg, id=71, 1414.53468pt x 612.03656pt>
+File: fig/vout_rg.jpg Graphic file (type jpg)
+<use fig/vout_rg.jpg>
+Package pdftex.def Info: fig/vout_rg.jpg  used on input line 188.
+(pdftex.def)             Requested size: 373.93962pt x 161.78734pt.
+<fig/freq_sweep.jpg, id=73, 1407.00656pt x 618.05907pt>
+File: fig/freq_sweep.jpg Graphic file (type jpg)
+<use fig/freq_sweep.jpg>
+Package pdftex.def Info: fig/freq_sweep.jpg  used on input line 208.
+(pdftex.def)             Requested size: 373.93962pt x 164.25641pt.
+ [2 <./fig/vout_rg.jpg>]
+Package hyperref Info: bookmark level for unknown lstlisting defaults to 0 on input line 241.
+<fig/freq_direct_filt.png, id=82, 1445.4pt x 652.3572pt>
 File: fig/freq_direct_filt.png Graphic file (type png)
 <use fig/freq_direct_filt.png>
-Package pdftex.def Info: fig/freq_direct_filt.png  used on input line 201.
+Package pdftex.def Info: fig/freq_direct_filt.png  used on input line 257.
 (pdftex.def)             Requested size: 444.05019pt x 200.41698pt.
- [1
-
-{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}]
-<fig/time_origin_filt.png, id=74, 1146.2022pt x 557.9244pt>
+ [3 <./fig/freq_sweep.jpg>]
+<fig/time_origin_filt.png, id=105, 1146.2022pt x 557.9244pt>
 File: fig/time_origin_filt.png Graphic file (type png)
 <use fig/time_origin_filt.png>
-Package pdftex.def Info: fig/time_origin_filt.png  used on input line 210.
+Package pdftex.def Info: fig/time_origin_filt.png  used on input line 266.
 (pdftex.def)             Requested size: 444.05019pt x 216.14238pt.
-<fig/time_origin_filt_nohp.png, id=75, 582.4962pt x 282.3348pt>
+<fig/time_origin_filt_nohp.png, id=106, 582.4962pt x 282.3348pt>
 File: fig/time_origin_filt_nohp.png Graphic file (type png)
 <use fig/time_origin_filt_nohp.png>
-Package pdftex.def Info: fig/time_origin_filt_nohp.png  used on input line 226.
+Package pdftex.def Info: fig/time_origin_filt_nohp.png  used on input line 282.
 (pdftex.def)             Requested size: 444.05019pt x 215.2358pt.
- [2 <./fig/freq_direct_filt.png (PNG copy)> <./fig/time_origin_filt.png (PNG copy)>]
-Overfull \hbox (35.41508pt too wide) in paragraph at lines 251--252
+ [4 <./fig/freq_direct_filt.png (PNG copy)> <./fig/time_origin_filt.png (PNG copy)>]
+Overfull \hbox (35.41508pt too wide) in paragraph at lines 312--313
  [][] 
  []
 
-<fig/freq_downsamp_origin_cmp.png, id=83, 1163.547pt x 573.8238pt>
+<fig/freq_downsamp_origin_cmp.png, id=114, 1163.547pt x 573.8238pt>
 File: fig/freq_downsamp_origin_cmp.png Graphic file (type png)
 <use fig/freq_downsamp_origin_cmp.png>
-Package pdftex.def Info: fig/freq_downsamp_origin_cmp.png  used on input line 266.
+Package pdftex.def Info: fig/freq_downsamp_origin_cmp.png  used on input line 327.
 (pdftex.def)             Requested size: 444.05019pt x 218.99219pt.
-[3 <./fig/time_origin_filt_nohp.png (PNG copy)>]
+[5 <./fig/time_origin_filt_nohp.png (PNG copy)>]
 LaTeX Font Info:    Font shape `OT1/cmtt/bx/n' in size <9> not available
-(Font)              Font shape `OT1/cmtt/m/n' tried instead on input line 273.
-<fig/freq_downsamp_avg_vs_null.png, id=97, 1163.547pt x 573.8238pt>
-File: fig/freq_downsamp_avg_vs_null.png Graphic file (type png)
-<use fig/freq_downsamp_avg_vs_null.png>
-Package pdftex.def Info: fig/freq_downsamp_avg_vs_null.png  used on input line 288.
-(pdftex.def)             Requested size: 444.05019pt x 218.99219pt.
- [4 <./fig/freq_downsamp_origin_cmp.png (PNG copy)> <./fig/freq_downsamp_avg_vs_null.png (PNG copy)>]
-<fig/freq_downsamp_filt.png, id=115, 672.5928pt x 509.2626pt>
+(Font)              Font shape `OT1/cmtt/m/n' tried instead on input line 334.
+<fig/freq_downsamp_filt.png, id=128, 672.5928pt x 509.2626pt>
 File: fig/freq_downsamp_filt.png Graphic file (type png)
 <use fig/freq_downsamp_filt.png>
-Package pdftex.def Info: fig/freq_downsamp_filt.png  used on input line 320.
-(pdftex.def)             Requested size: 444.05019pt x 336.23091pt.
-<fig/time_downsamp_zoom.png, id=116, 1445.4pt x 652.3572pt>
+Package pdftex.def Info: fig/freq_downsamp_filt.png  used on input line 379.
+(pdftex.def)             Requested size: 154.33388pt x 116.85568pt.
+<fig/freq_downsamp_filt_M8.png, id=129, 1155.8382pt x 573.8238pt>
+File: fig/freq_downsamp_filt_M8.png Graphic file (type png)
+<use fig/freq_downsamp_filt_M8.png>
+Package pdftex.def Info: fig/freq_downsamp_filt_M8.png  used on input line 383.
+(pdftex.def)             Requested size: 235.3787pt x 116.85568pt.
+ [6 <./fig/freq_downsamp_origin_cmp.png (PNG copy)>]
+<fig/time_downsamp_zoom.png, id=166, 1445.4pt x 652.3572pt>
 File: fig/time_downsamp_zoom.png Graphic file (type png)
 <use fig/time_downsamp_zoom.png>
-Package pdftex.def Info: fig/time_downsamp_zoom.png  used on input line 327.
-(pdftex.def)             Requested size: 444.05019pt x 200.41698pt.
- [5 <./fig/freq_downsamp_filt.png (PNG copy)>]
-<fig/eirin_77_4_0059.png, id=141, 673.0746pt x 482.2818pt>
+Package pdftex.def Info: fig/time_downsamp_zoom.png  used on input line 393.
+(pdftex.def)             Requested size: 420.67763pt x 189.86557pt.
+<fig/time_downsamp_zoom_M8.png, id=167, 1166.4378pt x 573.8238pt>
+File: fig/time_downsamp_zoom_M8.png Graphic file (type png)
+<use fig/time_downsamp_zoom_M8.png>
+Package pdftex.def Info: fig/time_downsamp_zoom_M8.png  used on input line 397.
+(pdftex.def)             Requested size: 341.21661pt x 167.85811pt.
+ [7 <./fig/freq_downsamp_filt.png (PNG copy)> <./fig/freq_downsamp_filt_M8.png (PNG copy)> <./fig/time_downsamp_zoom.png (PNG copy)> <./fig/time_downsamp_zoom_M8.png (PNG copy)>]
+<fig/eirin_77_4_0059.png, id=178, 673.0746pt x 482.2818pt>
 File: fig/eirin_77_4_0059.png Graphic file (type png)
 <use fig/eirin_77_4_0059.png>
-Package pdftex.def Info: fig/eirin_77_4_0059.png  used on input line 345.
+Package pdftex.def Info: fig/eirin_77_4_0059.png  used on input line 441.
 (pdftex.def)             Requested size: 144.8999pt x 103.82101pt.
-<fig/arthur_82_2_0044.png, id=142, 673.0746pt x 482.2818pt>
+<fig/arthur_82_2_0044.png, id=179, 673.0746pt x 482.2818pt>
 File: fig/arthur_82_2_0044.png Graphic file (type png)
 <use fig/arthur_82_2_0044.png>
-Package pdftex.def Info: fig/arthur_82_2_0044.png  used on input line 348.
+Package pdftex.def Info: fig/arthur_82_2_0044.png  used on input line 444.
 (pdftex.def)             Requested size: 144.8999pt x 103.82101pt.
-<fig/kev_91_2_0100.png, id=143, 673.0746pt x 482.2818pt>
+<fig/kev_91_2_0100.png, id=180, 673.0746pt x 482.2818pt>
 File: fig/kev_91_2_0100.png Graphic file (type png)
 <use fig/kev_91_2_0100.png>
-Package pdftex.def Info: fig/kev_91_2_0100.png  used on input line 351.
+Package pdftex.def Info: fig/kev_91_2_0100.png  used on input line 447.
 (pdftex.def)             Requested size: 144.8999pt x 103.82101pt.
- [6 <./fig/time_downsamp_zoom.png (PNG copy)> <./fig/eirin_77_4_0059.png (PNG copy)> <./fig/arthur_82_2_0044.png (PNG copy)> <./fig/kev_91_2_0100.png (PNG copy)>]
-<fig/lead_comp.png, id=151, 1227.83719pt x 648.17157pt>
+ [8 <./fig/eirin_77_4_0059.png (PNG copy)> <./fig/arthur_82_2_0044.png (PNG copy)> <./fig/kev_91_2_0100.png (PNG copy)>]
+<fig/lead_comp.png, id=186, 1227.83719pt x 648.17157pt>
 File: fig/lead_comp.png Graphic file (type png)
 <use fig/lead_comp.png>
-Package pdftex.def Info: fig/lead_comp.png  used on input line 369.
+Package pdftex.def Info: fig/lead_comp.png  used on input line 466.
 (pdftex.def)             Requested size: 444.05019pt x 234.40973pt.
- [7 <./fig/lead_comp.png>] [8] (./rprt.aux)
+ [9 <./fig/lead_comp.png>] [10] (./rprt.aux)
  ***********
 LaTeX2e <2023-11-01> patch level 1
 L3 programming layer <2024-01-22>
  ***********
 Package rerunfilecheck Info: File `rprt.out' has not changed.
-(rerunfilecheck)             Checksum: AB6CD26870A16914325349352BF7F31F;1581.
+(rerunfilecheck)             Checksum: 3F677C396C6C715CD09C22C8C038C042;2031.
  ) 
 Here is how much of TeX's memory you used:
- 30399 strings out of 474222
- 559253 string characters out of 5748734
- 2086975 words of memory out of 5000000
- 52090 multiletter control sequences out of 15000+600000
+ 30453 strings out of 474222
+ 560493 string characters out of 5748734
+ 2145975 words of memory out of 5000000
+ 52136 multiletter control sequences out of 15000+600000
  578594 words of font info for 112 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 84i,11n,87p,720b,1995s stack positions out of 10000i,1000n,20000p,200000b,200000s
-</usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr5.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmti12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt9.pfb>
-Output written on rprt.pdf (8 pages, 1589929 bytes).
+ 84i,11n,87p,720b,1199s stack positions out of 10000i,1000n,20000p,200000b,200000s
+</usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi5.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr5.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmti12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt9.pfb>
+Output written on rprt.pdf (10 pages, 3400404 bytes).
 PDF statistics:
- 250 PDF objects out of 1000 (max. 8388607)
- 196 compressed objects within 2 object streams
- 79 named destinations out of 1000 (max. 500000)
- 140 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 306 PDF objects out of 1000 (max. 8388607)
+ 235 compressed objects within 3 object streams
+ 87 named destinations out of 1000 (max. 500000)
+ 176 words of extra memory for PDF output out of 10000 (max. 10000000)
 

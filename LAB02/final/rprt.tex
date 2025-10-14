@@ -149,10 +149,66 @@ In lab2 we explored the design of ECG signal processing and had a nice journey e
 \section{Hardware configuration}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\linewidth]{fig/electric_design.jpg}
+    \caption{Circuit design}
+    \label{fig:elec}
+\end{figure}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Amplifier Frequency Response}
+\section{Frequency and Gain Characterization of the INA}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+
+
+\subsection{Output Amplitude versus $R_G$}
+
+Figure~\ref{fig:vout_rg} shows the measured output amplitude $V_{\text{out}}$ as a function of the gain-setting resistor $R_G$, with the theoretical prediction overlaid. The trend follows the standard instrumentation amplifier relationship:
+\begin{equation}
+    G = 1 + \frac{50~\text{k}\Omega}{R_G}.
+\end{equation}
+As expected, smaller $R_G$ values yield higher gain and therefore larger $V_{\text{out}}$ at a fixed input amplitude of $V_{\text{in}} = 20~\text{mV}_{\text{pp}}$.
+
+Using this model, the predicted output amplitudes are approximately 
+\[
+V_{\text{out}} \approx 
+\begin{cases}
+121~\text{mV}_{\text{pp}}, & R_G = 9.9~\text{k}\Omega~(G \approx 6.05)\\
+220~\text{mV}_{\text{pp}}, & R_G = 5.0~\text{k}\Omega~(G = 11)\\
+1.01~\text{V}_{\text{pp}}, & R_G = 1.011~\text{k}\Omega~(G \approx 50.5)
+\end{cases}
+\]
+The corresponding measurements were $150$, $245$, and $1.00~\text{V}_{\text{pp}}$, respectively. The high-gain point agrees with theory within $\sim 1\%$, while the lower-gain points are roughly $11\text{–}24\%$ higher than predicted. 
+
+This discrepancy pattern is typical when the measurement setup dominates the total error: small inaccuracies in the function generator amplitude or probe attenuation translate directly into apparent gain deviations. In addition, $R_G$ tolerance and input-offset/CMR effects are more pronounced at lower gains. Importantly, the overall linear dependence of $V_{\text{out}}$ on $R_G$ confirms that the amplifier operates linearly near $100~\text{Hz}$, so a narrow input pulse should be faithfully amplified by the expected gain $G$ without compression in this regime.
+
+Our final choice for $R_G$ in the later experiment is $110\Omega$ as our observed $R_G$ sweep suggested a lower resistance for better amplification.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\linewidth]{fig/vout_rg.jpg}
+    \caption{$V_{\text{out}}$ vs.\ $R_G$ with theoretical gain model overlaid.}
+    \label{fig:vout_rg}
+\end{figure}
+
+
+\subsection{Frequency Response}
+
+Figure~\ref{fig:freq_sweep} shows the frequency sweep for $R_G \approx 9.9~\text{k}\Omega$. The output remains approximately $150~\text{mV}_{\text{pp}}$ from $1$ to $100~\text{Hz}$ and decreases gently to $121~\text{mV}_{\text{pp}}$ at $100~\text{kHz}$, corresponding to a $\approx -1.86~\text{dB}$ drop relative to $1~\text{Hz}$. 
+
+For an instrumentation amplifier configured with $G \approx 6$, the small-signal $-3~\text{dB}$ bandwidth is expected to lie well above $100~\text{kHz}$, so this modest droop is reasonable and likely due to the external setup (generator amplitude roll-off, probe loading, or input stray capacitance) rather than the amplifier itself. The required slew rate at $100~\text{kHz}$ and $150~\text{mV}_{\text{pp}}$ is
+\begin{equation}
+    \frac{dV}{dt}_{\max} = 2\pi f V_{\text{peak}} \approx 0.047~\text{V}/\mu\text{s},
+\end{equation}
+which is far below the typical $1~\text{V}/\mu\text{s}$ capability of the device, confirming that slew-rate limitation is not a concern.
+
+Since we know our signal would be at low frequency, the amplifier behaves completely feasible.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\linewidth]{fig/freq_sweep.jpg}
+    \caption{Frequency response for $R_G \approx 9.9~\text{k}\Omega$ ($G \approx 6$).}
+    \label{fig:freq_sweep}
+\end{figure}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -233,6 +289,11 @@ In addition to the 60 Hz fundamental noise, the spectrum exhibits harmonics at i
 
 \subsection{Downsampling}
 
+With this basic filtering structure we proceed with our main dish in the experiment this time.
+
+Our choice of the downsampling rate was $M=4$ as in the example gave out in the slides, while in theory since our desired signal is known to be lower than $30$Hz, 
+the theoretical feasible downsampling rate is $\frac{F_s}{2f_\text{BW}} = 1000/60 \simeq 16.6$.
+
 \begin{figure}[h]
   \centering
   \begin{tikzpicture}[node distance=1.0cm]
@@ -281,14 +342,6 @@ x_ds_avg  = mean(x_blocks,1).';
 \end{lstlisting}
 
 
-We can see an obvious difference on the ambient noise level. (with the normalized frequency axis by $F_s/M$)
-
-\begin{figure}[H]
-	\centering 
-		\includegraphics[width = .95\columnwidth]{fig/freq_downsamp_avg_vs_null.png}
-	\caption{}
-\label{fig:ds_freq_avg_vs_null}
-\end{figure}
 
 We then apply the same filtering design on the downsampled signal.
 \begin{lstlisting}[caption={High-pass, notch, and band-pass filtering at the reduced sampling rate.}, label={lst:downsample_filter}]
@@ -315,22 +368,65 @@ x_up      = interp1(t_ds, x_ds_bp, t_trim, 'pchip', 'extrap');
 x_up_avg  = interp1(t_ds, x_ds_bp_avg, t_trim, 'pchip', 'extrap');
 \end{lstlisting}
 
+We can see an obvious difference on the ambient noise level. (with the normalized frequency axis by $F_s/M$). This is much more obvious if we increase our downsample rate to $M=8$
+The figures on the left show $M=4$, right show $M=8$.
+
 \begin{figure}[H]
 	\centering 
-		\includegraphics[width = .95\columnwidth]{fig/freq_downsamp_filt.png}
-	\caption{Frequency domain signal comparison of the two downsampling techniques, before and after filtering}
+	\subcaptionbox{\centering $M=4$ 
+		\label{fig:freq_down_M4}}{
+		\includegraphics[height= .25\columnwidth]{fig/freq_downsamp_filt.png}
+    }
+	\subcaptionbox{\centering $M=8$
+		\label{fig:freq_down_M8}}{
+		\includegraphics[height= .25\columnwidth]{fig/freq_downsamp_filt_M8.png}
+    }
+  \caption{Frequency domain signal comparison of the two downsampling techniques, before and after filtering}
 \label{fig:ds_freq_filt}
 \end{figure}
 
 \begin{figure}[H]
 	\centering 
-		\includegraphics[width = .95\columnwidth]{fig/time_downsamp_zoom.png}
+	\subcaptionbox{\centering $M=4$ 
+		\label{fig:time_down_M4}}{
+		\includegraphics[width= .9\columnwidth]{fig/time_downsamp_zoom.png}
+    }
+	\subcaptionbox{\centering $M=8$
+		\label{fig:time_down_M8}}{
+		\includegraphics[width= .73\columnwidth]{fig/time_downsamp_zoom_M8.png}
+    }
 	\caption{Time domain signal comparison of the three different signal processing pipelines (Oversampling, Direct downsampling and Averaging downsampling)}
 \label{fig:ds_time}
 \end{figure}
-We can observe that the downsampling signals kept more details of the ECG signals, especially obvious on the wiggles of the T peak part.
+We can observe that the downsampling signals kept more details of the ECG signals, especially obvious on the wiggles of the T peak part. 
+Notice when we increase the downsample factor, the low frequency part becomes significant, and therefore the Keep-every-M design in figure \ref{fig:time_down_M8} became infeasible because it cannot effectively improve the SNR.
+
 
 \subsection{Discussion on Oversampling techniques}
+
+Oversampling in ECG acquisition serves both theoretical and practical purposes. From a signal-theoretic 
+view, sampling far above the Nyquist rate does not increase the information content, but it relaxes the 
+requirements on analog anti-alias filters and improves the effective resolution of quantization. In our setup, 
+the ADC sampling at 1~kHz for a signal bandwidth below 30~Hz provides an oversampling ratio (OSR) of 
+more than 16. Such redundancy allows digital filtering to achieve sharper cutoffs and lower in-band noise 
+than a purely analog front-end could.
+
+But the trade-offs become visible when we compare the oversampled and downsampled pipelines. 
+While oversampling preserves all temporal detail and minimizes aliasing risk, it increases data volume and 
+processing load. Downsampling after suitable anti-alias filtering---such as our $M=4$ and $M=8$ cases---reduces 
+data rate and still maintains waveform fidelity, provided that the low-pass filter sufficiently attenuates 
+frequencies above half the new sampling rate. As shown in Figure~\ref{fig:ds_freq_filt} and 
+Figure~\ref{fig:ds_time}, moderate downsampling (e.g., $M=4$) preserves ECG morphology well, 
+whereas overly aggressive reduction (e.g., $M=8$) leads to baseline amplification and loss of fine detail in 
+the T-wave region.
+
+From a systems perspective, this suggests that a small degree of oversampling represents 
+a practical balance between SNR, computational cost, and alias-free reconstruction. In embedded ECG 
+monitoring systems, this approach also allows simplified analog design: the front-end only needs a gentle 
+roll-off filter, while the digital stage handles most of the noise rejection. Although oversampling may 
+appear redundant at first glance, it provides robustness, flexibility in post-processing, and tolerance to 
+non-ideal front-end behavior, which are key advantages for biomedical signal acquisition.
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{ECG Signal Discussion }
@@ -353,6 +449,7 @@ We can observe that the downsampling signals kept more details of the ECG signal
 \label{fig:real_world_image}
 \end{figure}
 
+One thing worth noticing is that Kevin is the only one in the three of us that has a regular workout habit. The signal amplitude strongly suggested that for one to improve their health they should actively consider hitting the gym more often. 
 
 \subsection{Lead Comparison}
 
