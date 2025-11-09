@@ -1,7 +1,7 @@
 # Fdb version 4
-["pdflatex"] 1762679147.89695 "/home/eirin/DSPLAB_2025FALL/LAB03/final/lab3_rprt.tex" "lab3_rprt.pdf" "lab3_rprt" 1762679148.92972 0
+["pdflatex"] 1762679612.38844 "/home/eirin/DSPLAB_2025FALL/LAB03/final/lab3_rprt.tex" "lab3_rprt.pdf" "lab3_rprt" 1762679613.52625 0
   "/etc/texmf/web2c/texmf.cnf" 1756975224.79778 475 c0e671620eb5563b2130f56340a5fde8 ""
-  "/home/eirin/DSPLAB_2025FALL/LAB03/final/lab3_rprt.tex" 1762679146.67502 16655 82d33ef57cb0b38fce695d8a87c03140 ""
+  "/home/eirin/DSPLAB_2025FALL/LAB03/final/lab3_rprt.tex" 1762679611.08108 20012 58f617521bbdbf5241fe516a65cfc869 ""
   "/usr/share/texlive/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/jknappen/ec/tcrm1000.tfm" 1136768653 1536 e07581a4bb3136ece9eeb4c3ffab8233 ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/public/amsfonts/cmextra/cmbsy5.tfm" 1246382020 1120 1e8878807317373affa7f7bba4cf2f6a ""
@@ -245,9 +245,9 @@
   "fig/TimeSeriesCar.png" 1762668782.91744 197808 2ac27c5f3b96b3f74152341866bbb4b0 ""
   "fig/displacement_car.png" 1762668782.92144 46846 63fd483951514f6734fb07bb97d3682d ""
   "fig/drift_car.png" 1762668782.92144 91279 215b3cc3bf52fee65a0bf1847befc87a ""
-  "lab3_rprt.aux" 1762679148.82703 5544 9975fa76d1afb5473f7f3a7991a0e33f "pdflatex"
-  "lab3_rprt.out" 1762679148.82703 2607 a75df10a42f73a2326410b5546374e4c "pdflatex"
-  "lab3_rprt.tex" 1762679146.67502 16655 82d33ef57cb0b38fce695d8a87c03140 ""
+  "lab3_rprt.aux" 1762679613.42109 5545 1488722e2d94a3f80fd4e43763594a0d "pdflatex"
+  "lab3_rprt.out" 1762679613.42109 2607 a75df10a42f73a2326410b5546374e4c "pdflatex"
+  "lab3_rprt.tex" 1762679611.08108 20012 58f617521bbdbf5241fe516a65cfc869 ""
   (generated)
   "lab3_rprt.aux"
   "lab3_rprt.log"
