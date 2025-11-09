@@ -130,13 +130,16 @@ Duan-Kai, Hu (112511015 \it{huduankai@gmail.com})}
 \begin{document}
 \maketitle
 
-\section{Data Pre-Processing}
+\section{Data Fetching and Converting}
 
+
+
+\pagebreak
 
 
 \section{Experiment I: Car movement}
 \subsection{Calibration}
-This section talks about the calibration on the accelleration detector of the IMU. We make use of the gravity $1g = 16384$ as our reference.
+This section talks about the calibration on the acceleration detector of the IMU. We make use of the gravity $1g = 16384$ as our reference.
 The work flow is as follow,
 \begin{itemize}
   \item[1] Face the target direction upward and collect the signal. 
@@ -146,7 +149,7 @@ The work flow is as follow,
 
 The following set of figures shows the signal before and after the calibration.
 
-\begin{figure}[!h]
+\begin{figure}[H]
 	\centering
 	\subcaptionbox{x positive
 		\label{fig:calib_xp}}{
@@ -167,29 +170,301 @@ The following set of figures shows the signal before and after the calibration.
 	\subcaptionbox{z negative 
 		\label{fig:calib_zn}}{
 		\includegraphics[width=0.3\columnwidth]{fig/Gravity check ZN - acc_z.png}}
-	\caption{Calibration of accelleration on six different direction}
+	\caption{Calibration of acceleration on six different direction}
 \label{fig:calibration_six}
 \end{figure}
 
 \subsection{Car Displacement}
 
 
+\paragraph{Data Preprocessing}
 
+In this preprocessing stage, the raw IMU data matrix \( X \in \mathbb{R}^{N\times6} \), 
+consisting of the tri-axial accelerometer and gyroscope signals, 
+is first converted to double precision and time-stamped by \( t = (0:N-1)'/F_s \). 
+
+A detrending operation is then applied to remove bias or slow drifts 
+according to the calibration we've done in the previous stage.
+
+We then pass our signal through a low-pass Butterworth filter of order \(\text{ord}\) and cutoff frequency \(f_c\) is designed and applied, via zero-phase filtering (\texttt{filtfilt}), exclusively to the accelerometer channels, thereby suppressing high-frequency noise while preserving temporal alignment. 
+
+\begin{lstlisting}
+X = double([T{:,ix_accx}, T{:,ix_accy}, T{:,ix_accz}, ...
+            T{:,ix_gyrx}, T{:,ix_gyry}, T{:,ix_gyrz}]);
+[N,C] = size(X);
+t = (0:N-1)'/Fs;
+
+%% ---------- Preprocess ----------
+X_pre = X;
+X_pre = detrend(X_pre, 0);
+
+[b,a] = butter(ord, fc/(Fs/2), 'low');
+X_pre = filtfilt(b,a,X_pre); 
+\end{lstlisting}
+\begin{figure}[!h]
+	\centering 
+		\includegraphics[width = .75\columnwidth]{fig/TimeSeriesCar.png}
+	\caption{Acc and Gyr signal before and after the preprocessing, with calibration and filtering.}
+\label{fig:car_calib}
+\end{figure}
+
+
+
+\paragraph{Drift Correction}
+
+We design an automatic motion segmentation before integrating the total displacement. 
+
+We first form a scalar detection signal from the preprocessed accelerometer per-axis magnitude \(|a_{a_i}(t)|\), 
+then apply a simple amplitude test \( \texttt{active}(t) \!\gets\! \big(\texttt{sig\_for\_detect}(t) > \texttt{acc\_threshold}\big) \) and extract contiguous runs with 
+\texttt{logical\_runs}, yielding raw time windows \(\texttt{win\_raw}=[t_{\text{start}},t_{\text{stop}}]\). 
+
+We then prune spuriously short bursts by enforcing a minimum duration \(\texttt{min\_burst\_duration}\), coalesce adjacent bursts separated by gaps shorter than 
+\(\texttt{min\_silent\_gap}\) via \texttt{merge\_gaps}, and finally dilate each window by \(\texttt{dilate\_edges}\) seconds on both sides (clipped to \([0,\,t_{\max}]\)) to capture boundary transients. The result \(\texttt{win}\) consists of robust, edge-padded motion intervals suitable for subsequent velocity/displacement integration and gait-phase analysis.
+
+
+\begin{lstlisting}
+%% ---------- Auto-detect motion windows ----------
+dt = 1/Fs;
+ai = pick_axis(axis_for_integration);
+acc_axis = X_pre(:,ai) * g_to_mps2;
+am = sqrt(sum((X_pre(:,1:3)*g_to_mps2).^2,2)); 
+sig_for_detect = am;
+
+active = sig_for_detect > acc_threshold;
+[starts, stops] = logical_runs(active);
+
+% To times
+win_raw = [t(starts), t(stops)];
+
+% Keep only sufficiently long bursts
+dur = win_raw(:,2) - win_raw(:,1);
+win = win_raw(dur >= min_burst_duration, :);
+
+% Merge short gaps
+win = merge_gaps(win, min_silent_gap);
+
+% Dilate edges
+win = [max(0, win(:,1)-dilate_edges), min(t(end), win(:,2)+dilate_edges)];
+\end{lstlisting}
+
+After the motion detection windows was created, we perform drift correction on each windows based on the equation in TA's instruction. 
+
+\begin{align}
+v_d(t) &= \frac{v_e}{t_{se} - t_{ss}} \times (t - t_{ss}) \\
+v_c(t) &= v_r(t) - v_d(t)
+\end{align}
+
+The drift-corretion is as shown in the figure below.
+
+\begin{figure}[H]
+	\centering 
+		\includegraphics[width = .75\columnwidth]{fig/drift_car.png}
+	\caption{X-axis velocity by integrating the pre-processed acceleration, before and after drift correction.}
+\label{fig:car_drift}
+\end{figure}
+
+
+
+\paragraph{Car Displacement}
+
+\begin{figure}[!h]
+	\centering 
+		\includegraphics[width = .75\columnwidth]{fig/displacement_car.png}
+	\caption{Car displacement by integrating over the drift-corrected velocity.}
+\label{fig:car_disp}
+\end{figure}
+
+\pagebreak
 
 \section{Experiment II: Walking Motion Detection}
-\subsection{Calibration}
+\subsection{Calibration and Preprocessing}
 Since what we're interesting in is the total displacement on the three direction, in this section we directly pass the signal through a low pass filter.
+\begin{figure}[!h]
+	\centering 
+		\includegraphics[width = .75\columnwidth]{fig/Body-frame IMU.png}
+	\caption{Pre-processed Body-frame data}
+\label{fig:walk_calib}
+\end{figure}
 
 
-\subsection{Coordinate System Transformation}
+
+\subsection{Mahony Filter for IMU Orientation Estimation}
+Let us talk about Quaternions. I'm so happy you mentioned about this since I've been recently obsessed with William R. Hamilton.
+
+The Mahony filter \cite{Mahony2008} is a computationally efficient attitude estimation algorithm designed to fuse high-rate, drift-prone gyroscope data with low-rate, drift-free accelerometer (and optionally magnetometer) measurements. Its goal is to produce a stable quaternion-based representation of the sensor's orientation relative to the earth frame, denoted as the body-to-earth rotation.
+
+\subsubsection{Quaternion Kinematics}
+
+The time evolution of orientation is governed by the quaternion differential equation
+\begin{equation}
+\dot{q} = \tfrac{1}{2}\, q \otimes \omega_q,
+\end{equation}
+where \( q = [q_0, q_1, q_2, q_3]^\top \) represents the unit quaternion, and
+\(\omega_q = [0, \boldsymbol{\omega}]^\top\) encodes the angular velocity vector measured by the gyroscope. Direct integration of this equation yields a predicted orientation; however, gyroscope drift causes cumulative errors that must be corrected through feedback.
+
+\subsubsection{Feedback Correction Law}
+
+Let \(\mathbf{g}_b\) denote the gravity vector measured by the accelerometer in the body frame, and let \(\hat{\mathbf{g}}_b\) denote the expected gravity vector computed from the current quaternion estimate. The orientation error is then defined as
+\begin{equation}
+\mathbf{e} = \mathbf{g}_b \times \hat{\mathbf{g}}_b.
+\end{equation}
+A proportional–integral (PI) controller applies this error as a feedback term to correct the gyroscope measurements:
+\begin{equation}
+\boldsymbol{\omega}_{\text{corr}} = \boldsymbol{\omega} + k_p \mathbf{e} + k_i \!\int \mathbf{e}\,dt,
+\end{equation}
+where \(k_p\) and \(k_i\) are proportional and integral gains, respectively. The corrected angular rate is then used to update the quaternion:
+\begin{equation}
+\dot{q} = \tfrac{1}{2}\, q \otimes [0,\, \boldsymbol{\omega}_{\text{corr}}]^\top.
+\end{equation}
+The quaternion is normalized after each integration step to ensure \(\|q\| = 1\).
+
+\subsubsection{Rotation Matrix Conversion}
+
+The corresponding rotation matrix from body to earth frame, \(R_{be}\), is derived from the quaternion as
+\begin{equation}
+R_{be} =
+\begin{bmatrix}
+1-2(q_2^2+q_3^2) & 2(q_1q_2-q_0q_3) & 2(q_1q_3+q_0q_2)\\
+2(q_1q_2+q_0q_3) & 1-2(q_1^2+q_3^2) & 2(q_2q_3-q_0q_1)\\
+2(q_1q_3-q_0q_2) & 2(q_2q_3+q_0q_1) & 1-2(q_1^2+q_2^2)
+\end{bmatrix}.
+\end{equation}
+This matrix transforms any body-frame vector \(\mathbf{v}_b\) into the earth frame via
+\begin{equation}
+\mathbf{v}_e = R_{be}\,\mathbf{v}_b.
+\end{equation}
+
+\subsubsection{Characteristics}
+
+The Mahony filter offers a balance between accuracy and computational simplicity:
+\begin{itemize}
+    \item \textbf{Lightweight computation:} Uses only vector algebra and quaternion arithmetic—no matrix inversions are required.
+    \item \textbf{Low latency:} Well-suited for real-time embedded systems.
+    \item \textbf{Robust to noise:} The proportional–integral feedback attenuates both high-frequency sensor noise and low-frequency drift.
+    \item \textbf{Complementary fusion:} Effectively blends high-frequency gyroscope information with low-frequency accelerometer feedback.
+\end{itemize}
+
+In practice, this method provides a stable and drift-compensated estimate of sensor orientation, enabling accurate gravity removal, velocity integration, and gait-phase analysis in IMU-based motion processing systems.
+
+\subsubsection{Implementation}
+The following demonstrate a Matlab implementation of this Conversion.
+
+
+\begin{lstlisting}
+%% --------------- Orientation  ---------------
+dt = 1/Fs;
+q = [1;0;0;0];                    % quaternion w,x,y,z (body->earth, earth Z-up)
+bias = [0;0;0];
+
+% helpers
+qmul = @(q1,q2)[ q1(1)*q2(1)-dot(q1(2:4),q2(2:4));
+                 q1(1)*q2(2:4)+q2(1)*q1(2:4)+cross(q1(2:4),q2(2:4)) ];
+q2R = @(q)[ 1-2*(q(3)^2+q(4)^2), 2*(q(2)*q(3)-q(1)*q(4)),   2*(q(2)*q(4)+q(1)*q(3));
+            2*(q(2)*q(3)+q(1)*q(4)),   1-2*(q(2)^2+q(4)^2), 2*(q(3)*q(4)-q(1)*q(2));
+            2*(q(2)*q(4)-q(1)*q(3)),   2*(q(3)*q(4)+q(1)*q(2)), 1-2*(q(2)^2+q(3)^2) ];
+normalize = @(v) v./max(norm(v),1e-12);
+
+Q = zeros(4,N);  Rbe_all = zeros(3,3,N);
+
+n0   = min(N, round(2*Fs));
+
+acc0 = mean(accB_f(1:n0,:)).';           % 3x1
+acc0 = acc0 ./ max(norm(acc0), 1e-12);   % unit
+g_e  = [0;0;-1];                          % 3x1, earth Z-up (gravity direction)
+
+% rotate acc0 to -g_e
+v    = cross(acc0, -g_e);                 % 3x1
+s    = norm(v);
+c    = dot(acc0, -g_e);
+if s < 1e-8
+    q = [1;0;0;0];
+else
+    axis = v / s;                         % 3x1
+    angle = atan2(s, c);
+    q = [cos(angle/2); axis * sin(angle/2)];  % 4x1: [w;x;y;z]
+end
+
+
+for k = 1:N
+    % prediction with gyro (body frame)
+    omega_b = (gyrB_f(k,:)' - bias);                 % rad/s
+    dq = [1; 0.5*omega_b*dt];                        % infestimal 
+    q  = normalize(qmul(q, dq));
+
+    % correction: keep gravity vertical 
+    Rbe = q2R(q);
+    a_meas = accB_f(k,:)';  a_norm = norm(a_meas);
+    use_acc = (a_norm > 0.8*g0) && (a_norm < 1.2*g0);
+    if use_acc
+        a_b_meas_u = a_meas / a_norm;
+        g_b_est    = Rbe.' * g_e;                    % expected gravity dir (body)
+        e_tilt     = cross(a_b_meas_u, g_b_est);     % tilt error
+    else
+        e_tilt     = [0;0;0];
+    end
+    omega_corr = Kp * e_tilt;
+    bias = bias - Ki * e_tilt * dt;
+
+    % corrected re-integration
+    dq = [1; 0.5*(omega_b + omega_corr)*dt];
+    q  = normalize(qmul(q, dq));
+
+    Q(:,k) = q;
+    Rbe_all(:,:,k) = q2R(q);
+end
+
+%% --------------- Rotate to earth & remove gravity 
+accE = zeros(N,3);  gyrE = zeros(N,3);
+for k = 1:N
+    Rbe = Rbe_all(:,:,k);
+    gyrE(k,:) = (Rbe * gyrB_f(k,:).').';             % rad/s in earth
+    accE(k,:) = (Rbe * accB_f(k,:).').';             % m/s^2 in earth 
+end
+accE = accE - [0 0 g0];                              % subtract gravity
+\end{lstlisting}
+
+
+The resulted coordinate-transformed signals are plotted as below.
+
+
+\begin{figure}[H]
+	\centering 
+		\includegraphics[width = .8\columnwidth]{fig/Earth-frame IMU (gravity removed).png}
+	\caption{Earth-frame data}
+\label{fig:walk_coor_trans}
+\end{figure}
+
 \subsection{Walking Motion Analysis}
+\begin{figure}[H]
+	\centering 
+		\includegraphics[width = .75\columnwidth]{fig/Per-step metrics.png}
+	\caption{}
+\label{fig:walk_motion_stat}
+\end{figure}
+\begin{figure}[H]
+	\centering 
+		\includegraphics[width = .75\columnwidth]{fig/Step Speed.png}
+	\caption{}
+\label{fig:walk_speed}
+\end{figure}
 \subsection{Walking Trace Reconstruction}
 
 
 
+\begin{figure}[H]
+	\centering 
+		\includegraphics[width = .75\columnwidth]{fig/3D Trajectory.png}
+\label{fig:walk_3d}
+\end{figure}
 \pagebreak
 
 \begin{thebibliography}{99}
+\bibitem{Mahony2008}
+R.~Mahony, T.~Hamel, and J.-M.~Pflimlin, 
+``Nonlinear Complementary Filters on the Special Orthogonal Group,''
+\emph{IEEE Transactions on Automatic Control}, 
+vol.~53, no.~5, pp.~1203--1218, 2008.
+doi:\href{https://doi.org/10.1109/TAC.2008.923738}{10.1109/TAC.2008.923738}.
 
 \end{thebibliography}
 \end{document}

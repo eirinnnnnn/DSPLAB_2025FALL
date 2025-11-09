@@ -3,28 +3,53 @@
 \providecommand\HyField@AuxAddToFields[1]{}
 \providecommand\HyField@AuxAddToCoFields[2]{}
 \providecommand \oddpage@label [2]{}
-\@writefile{toc}{\contentsline {section}{\numberline {1}Data Pre-Processing}{1}{section.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {2}Experiment I: Car movement}{1}{section.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.1}Calibration}{1}{subsection.2.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {1}Data Fetching and Converting}{1}{section.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {2}Experiment I: Car movement}{2}{section.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.1}Calibration}{2}{subsection.2.1}\protected@file@percent }
 \providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
-\newlabel{fig:calib_xp}{{1a}{1}{x positive}{figure.caption.1}{}}
-\newlabel{sub@fig:calib_xp}{{a}{1}{x positive}{figure.caption.1}{}}
-\newlabel{fig:calib_yp}{{1b}{1}{y positive}{figure.caption.1}{}}
-\newlabel{sub@fig:calib_yp}{{b}{1}{y positive}{figure.caption.1}{}}
-\newlabel{fig:calib_zp}{{1c}{1}{z positive}{figure.caption.1}{}}
-\newlabel{sub@fig:calib_zp}{{c}{1}{z positive}{figure.caption.1}{}}
-\newlabel{fig:calib_xn}{{1d}{1}{x negative}{figure.caption.1}{}}
-\newlabel{sub@fig:calib_xn}{{d}{1}{x negative}{figure.caption.1}{}}
-\newlabel{fig:calib_yn}{{1e}{1}{y negative}{figure.caption.1}{}}
-\newlabel{sub@fig:calib_yn}{{e}{1}{y negative}{figure.caption.1}{}}
-\newlabel{fig:calib_zn}{{1f}{1}{z negative}{figure.caption.1}{}}
-\newlabel{sub@fig:calib_zn}{{f}{1}{z negative}{figure.caption.1}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Calibration of accelleration on six different direction}}{1}{figure.caption.1}\protected@file@percent }
-\newlabel{fig:calibration_six}{{1}{1}{Calibration of accelleration on six different direction}{figure.caption.1}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.2}Car Displacement}{1}{subsection.2.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {3}Experiment II: Walking Motion Detection}{1}{section.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Calibration}{1}{subsection.3.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Coordinate System Transformation}{1}{subsection.3.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.3}Walking Motion Analysis}{1}{subsection.3.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.4}Walking Trace Reconstruction}{1}{subsection.3.4}\protected@file@percent }
-\gdef \@abspage@last{2}
+\newlabel{fig:calib_xp}{{1a}{2}{x positive}{figure.caption.1}{}}
+\newlabel{sub@fig:calib_xp}{{a}{2}{x positive}{figure.caption.1}{}}
+\newlabel{fig:calib_yp}{{1b}{2}{y positive}{figure.caption.1}{}}
+\newlabel{sub@fig:calib_yp}{{b}{2}{y positive}{figure.caption.1}{}}
+\newlabel{fig:calib_zp}{{1c}{2}{z positive}{figure.caption.1}{}}
+\newlabel{sub@fig:calib_zp}{{c}{2}{z positive}{figure.caption.1}{}}
+\newlabel{fig:calib_xn}{{1d}{2}{x negative}{figure.caption.1}{}}
+\newlabel{sub@fig:calib_xn}{{d}{2}{x negative}{figure.caption.1}{}}
+\newlabel{fig:calib_yn}{{1e}{2}{y negative}{figure.caption.1}{}}
+\newlabel{sub@fig:calib_yn}{{e}{2}{y negative}{figure.caption.1}{}}
+\newlabel{fig:calib_zn}{{1f}{2}{z negative}{figure.caption.1}{}}
+\newlabel{sub@fig:calib_zn}{{f}{2}{z negative}{figure.caption.1}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Calibration of acceleration on six different direction}}{2}{figure.caption.1}\protected@file@percent }
+\newlabel{fig:calibration_six}{{1}{2}{Calibration of acceleration on six different direction}{figure.caption.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.2}Car Displacement}{2}{subsection.2.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Data Preprocessing}{2}{section*.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Drift Correction}{2}{section*.4}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Acc and Gyr signal before and after the preprocessing, with calibration and filtering.}}{3}{figure.caption.3}\protected@file@percent }
+\newlabel{fig:car_calib}{{2}{3}{Acc and Gyr signal before and after the preprocessing, with calibration and filtering}{figure.caption.3}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces X-axis velocity by integrating the pre-processed acceleration, before and after drift correction.}}{4}{figure.caption.5}\protected@file@percent }
+\newlabel{fig:car_drift}{{3}{4}{X-axis velocity by integrating the pre-processed acceleration, before and after drift correction}{figure.caption.5}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Car displacement by integrating over the drift-corrected velocity.}}{4}{figure.caption.7}\protected@file@percent }
+\newlabel{fig:car_disp}{{4}{4}{Car displacement by integrating over the drift-corrected velocity}{figure.caption.7}{}}
+\citation{Mahony2008}
+\@writefile{toc}{\contentsline {paragraph}{Car Displacement}{5}{figure.caption.7}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {3}Experiment II: Walking Motion Detection}{5}{section.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Calibration and Preprocessing}{5}{subsection.3.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces Pre-processed Body-frame data}}{5}{figure.caption.8}\protected@file@percent }
+\newlabel{fig:walk_calib}{{5}{5}{Pre-processed Body-frame data}{figure.caption.8}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Mahony Filter for IMU Orientation Estimation}{5}{subsection.3.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.2.1}Quaternion Kinematics}{5}{subsubsection.3.2.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.2.2}Feedback Correction Law}{5}{subsubsection.3.2.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.2.3}Rotation Matrix Conversion}{6}{subsubsection.3.2.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.2.4}Characteristics}{6}{subsubsection.3.2.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.2.5}Implementation}{6}{subsubsection.3.2.5}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces Earth-frame data}}{7}{figure.caption.9}\protected@file@percent }
+\newlabel{fig:walk_coor_trans}{{6}{7}{Earth-frame data}{figure.caption.9}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3}Walking Motion Analysis}{8}{subsection.3.3}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces \relax }}{8}{figure.caption.10}\protected@file@percent }
+\newlabel{fig:walk_motion_stat}{{7}{8}{\relax }{figure.caption.10}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {8}{\ignorespaces \relax }}{8}{figure.caption.11}\protected@file@percent }
+\newlabel{fig:walk_speed}{{8}{8}{\relax }{figure.caption.11}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.4}Walking Trace Reconstruction}{8}{subsection.3.4}\protected@file@percent }
+\newlabel{fig:walk_3d}{{\caption@xref {fig:walk_3d}{ on input line 457}}{8}{Walking Trace Reconstruction}{figure.caption.12}{}}
+\bibcite{Mahony2008}{1}
+\gdef \@abspage@last{9}

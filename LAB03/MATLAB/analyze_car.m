@@ -63,11 +63,8 @@ switch lower(detrend_type)
     otherwise, error('Unknown detrend_type.');
 end
 
-if ~isempty(fc)
-    if fc >= Fs/2, fc = 0.49*(Fs/2); warning('fc>=Nyquist; reduced.'); end
-    [b,a] = butter(ord, fc/(Fs/2), 'low');
+[b,a] = butter(ord, fc/(Fs/2), 'low');
     X_pre(:,1:3) = filtfilt(b,a,X_pre(:,1:3)); % filter accelerometer channels only
-end
 
 % Window for FFT
 if isempty(nfft), nfft = 2^nextpow2(N); end
