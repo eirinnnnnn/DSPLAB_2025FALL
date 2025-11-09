@@ -1,0 +1,204 @@
+%% analyze_imu_fft_lpf.m
+% Read decoded IMU data, auto-detect motion windows, LPF, FFTs,
+% integrate to velocity (with segment-wise drift removal), integrate to displacement,
+% and save all results to a .mat file.
+
+%% ---------- User parameters ----------
+in_csv = 'zn.csv';    % CSV created by parse_imu_hex.m
+out_mat = 'zn.mat';
+
+
+Fs = 50;                    % [Hz] sampling rate
+fc = 5;                     % [Hz] LPF cutoff for accel (set [] to skip LPF)
+ord = 4;                    % Butterworth order for LPF
+nfft = [];                  % [] -> nextpow2(N)
+detrend_type = 'constant';  % 'constant' | 'linear' | 'off'
+win_type = 'hann';          % 'hann' | 'rectwin'
+show_time_plots = true;
+g_to_mps2 = 9.8/16384;
+
+%% ---------- Titles/labels ----------
+titles = {'acc\_x','acc\_y','acc\_z','gyro\_x','gyro\_y','gyro\_z'};
+ylabs  = {'acc','acc','acc','gyro','gyro','gyro'};
+
+%% ---------- Load data (robust mapping) ----------
+if ~isfile(in_csv), error('Input CSV "%s" not found.', in_csv); end
+T = readtable(in_csv);
+
+findCol = @(cands) local_find_col(T.Properties.VariableNames, cands);
+ix_accx = findCol({'accx','acc_x','ax','accelx','acc-x'});
+ix_accy = findCol({'accy','acc_y','ay','accely','acc-y'});
+ix_accz = findCol({'accz','acc_z','az','accelz','acc-z'});
+ix_gyrx = findCol({'gyrx','gyro_x','gx','gyrox','gyr-x'});
+ix_gyry = findCol({'gyry','gyro_y','gy','gyroy','gyr-y'});
+ix_gyrz = findCol({'gyrz','gyro_z','gz','gyroz','gyr-z'});
+
+need = [ix_accx, ix_accy, ix_accz, ix_gyrx, ix_gyry, ix_gyrz];
+if any(isnan(need))
+    error('Missing required columns. Present: %s', strjoin(T.Properties.VariableNames, ', '));
+end
+
+X = double([T{:,ix_accx}, T{:,ix_accy}, T{:,ix_accz}, ...
+            T{:,ix_gyrx}, T{:,ix_gyry}, T{:,ix_gyrz}]);
+[N,C] = size(X);
+t = (0:N-1)'/Fs;
+
+xyz = ["x", "y", "z"];
+%% ---------- Single-face gravity calibration (no correction applied) ----------
+% Set the face code for this file: 'xp','xn','yp','yn','zp','zn'
+face_code = 'zn';     % <-- e.g., this file has +Z facing downward
+
+
+% (Re)build working copies with no detrend; keep your LPF if desired
+X_cal = X;                         % start from raw
+if ~isempty(fc)
+    [b_acc,a_acc] = butter(ord, min(fc,0.49*Fs/2)/(Fs/2), 'low');
+    X_cal(:,1:3) = filtfilt(b_acc,a_acc, X_cal(:,1:3));  % zero-phase LPF on accel only
+end
+
+acc_raw  = X_cal(:,1:3);
+gyro_raw = X_cal(:,4:6);
+acc_SI   = acc_raw * g_to_mps2;    % if already m/s^2, g_to_mps2=1
+
+% Map face_code -> target axis and expected sign
+switch lower(face_code)
+    case 'xp', ax = 1; sgn = +1;
+    case 'xn', ax = 1; sgn = -1;
+    case 'yp', ax = 2; sgn = +1;
+    case 'yn', ax = 2; sgn = -1;
+    case 'zp', ax = 3; sgn = +1;
+    case 'zn', ax = 3; sgn = -1;
+    otherwise, error('Unknown face_code: %s', face_code);
+end
+ax_name = xyz(ax);
+
+%% --- Simple single-face gravity check: direct average + plot original/expected/corrected ---
+g0 = 9.8;                             % [m/s^2]
+ax_name = xyz(ax);                    % "x","y","z"
+ax_char = char(ax_name);              % 'x','y','z'
+
+% Target axis in SI (after optional LPF above)
+a_axis = acc_SI(:,ax);                % [m/s^2]
+meas_mean = mean(a_axis,'omitnan');   % direct average over the whole file
+meas_med  = median(a_axis,'omitnan');
+meas_std  = std(a_axis,'omitnan');
+
+% Expected gravity for this face
+a_exp = sgn * g0;
+
+% Bias to add to future readings on this axis (SI and raw units)
+b_axis_SI  = a_exp - meas_mean;
+b_axis_raw = b_axis_SI / g_to_mps2;
+
+% Corrected signal (for visualization only; we do not overwrite data)
+a_corr = a_axis + b_axis_SI;
+
+fprintf('\n=== Single-face calibration (DIRECT AVG): %s (axis %c) ===\n', upper(face_code), ax_char);
+fprintf('Expected: %+6.4f m/s^2 | Measured (mean±std): %+.5f ± %.5f\n', a_exp, meas_mean, meas_std);
+fprintf('Bias to ADD on acc_%c:  b_%c = %+.6f m/s^2  (raw units: %+.6f)\n', ...
+        ax_char, ax_char, b_axis_SI, b_axis_raw);
+fprintf('Median: %+.5f m/s^2 | N=%d samples\n\n', meas_med, numel(a_axis));
+
+if show_time_plots
+    figure('Name',sprintf('Gravity check %s - acc_%c', upper(face_code), ax_char),'NumberTitle','off');
+    tiledlayout(2,1,'Padding','compact','TileSpacing','compact');
+
+    % (1) Time series: original vs expected vs corrected
+    nexttile; grid on; hold on;
+    plot(t, a_axis, 'LineWidth', 1);
+    yline(a_exp,'k--','Expected g');
+    yline(meas_mean,'r-','Measured mean');
+    plot(t, a_corr, 'LineWidth', 0.8);        % corrected trace
+    xlabel('t [s]'); ylabel(sprintf('acc_%c [m/s^2]', ax_char));
+    title(sprintf('%s: acc_%c original & corrected', upper(face_code), ax_char));
+    legend('original','expected','mean','corrected','Location','best');
+
+    % (2) Histogram
+    nexttile; grid on; hold on;
+    histogram(a_axis,'BinMethod','fd');
+    xline(a_exp,'k--','Expected'); 
+    xline(meas_mean,'r-','Mean'); 
+    xline(meas_med,'m-','Median');
+    xlabel(sprintf('acc_%c [m/s^2]', ax_char)); ylabel('count');
+    title(sprintf('%s: acc_%c distribution', upper(face_code), ax_char));
+end
+
+% Save per-file summary (no correction applied to stored data)
+calib_summary = struct();
+calib_summary.face_code   = face_code;
+calib_summary.axis        = ax;
+calib_summary.axis_char   = ax_char;
+calib_summary.expected_SI = a_exp;
+calib_summary.measured_mean_SI = meas_mean;
+calib_summary.measured_median_SI = meas_med;
+calib_summary.measured_std_SI = meas_std;
+calib_summary.bias_SI     = b_axis_SI;
+calib_summary.bias_raw    = b_axis_raw;
+calib_summary.N_total     = numel(a_axis);
+
+if exist('out_mat','var') && ~isempty(out_mat)
+    save(out_mat, 'Fs','g_to_mps2','g0','face_code', ...
+         't','X','X_cal','acc_SI','gyro_raw', ...
+         'calib_summary','-append');
+end
+
+
+%% ===================== Helpers =====================
+
+function idx = local_find_col(varnames, candidates)
+    vn = string(varnames);  vn_norm = lower(regexprep(vn, '[_\-]', ''));
+    idx = NaN;
+    for c = 1:numel(candidates)
+        pat = lower(regexprep(string(candidates{c}), '[_\-]', ''));
+        hit = find(vn_norm == pat, 1, 'first');
+        if ~isempty(hit), idx = hit; return; end
+    end
+end
+
+function [Xmag, f] = single_sided_fft_mag(Xt, Fs, nfft, Wnorm)
+    [N, C] = size(Xt);
+    Xf = fft(Xt, nfft, 1);
+    P2 = abs(Xf / (N*Wnorm));
+    K  = floor(nfft/2) + 1;
+    P1 = P2(1:K, :);
+    if rem(nfft,2)==0, P1(2:end-1,:) = 2*P1(2:end-1,:); else, P1(2:end,:) = 2*P1(2:end,:); end
+    Xmag = P1;
+    f = (0:K-1).' * (Fs/nfft);
+end
+
+function ai = pick_axis(axis_for_integration)
+    if isnumeric(axis_for_integration)
+        ai = axis_for_integration;
+    else
+        switch lower(string(axis_for_integration))
+            case "acc_x", ai = 1;
+            case "acc_y", ai = 2;
+            case "acc_z", ai = 3;
+            otherwise, error('axis_for_integration must be acc_x/acc_y/acc_z or 1..3');
+        end
+    end
+    if ai<1 || ai>3, error('axis_for_integration must reference an accelerometer axis (1..3).'); end
+end
+
+function [starts, stops] = logical_runs(x)
+% Return start/stop indices (inclusive) of true runs in logical vector x.
+    x = x(:) ~= 0;
+    dx = diff([false; x; false]);
+    starts = find(dx==1);
+    stops  = find(dx==-1) - 1;
+end
+
+function win2 = merge_gaps(win, min_gap)
+% Merge windows whose gap is < min_gap (in seconds).
+    if isempty(win), win2 = win; return; end
+    win = sortrows(win,1);
+    out = win(1,:);
+    for i = 2:size(win,1)
+        if win(i,1) - out(end,2) < min_gap
+            out(end,2) = max(out(end,2), win(i,2)); % merge
+        else
+            out = [out; win(i,:)]; %#ok<AGROW>
+        end
+    end
+    win2 = out;
+end
