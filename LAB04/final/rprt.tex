@@ -143,17 +143,246 @@ In lab 4 We explored the basic signal processing techniques of a 3D LiDar image.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Experiment 1: }
+\section{Experiment 1: Distance Detection with Direct Histogram Construction}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+After pairing each emission with the earliest reception that is not later than it, we compute $\delta t$ and build histograms over 0-1250 (unit: 100 ps) using 500, 700, 900, 1100, and 1500 bins. The main peak consistently appears near $1000\times100$ ps, indicating a unimodal distribution with minor noise/multipath influence. 
+With fewer bins (wider bins) the bars look smoother and the peak count appears more concentrated, but the estimate is quantized by a coarser bin width; for 500 bins the $\delta t$ quantization step is about $2.5\times100$ ps (distance step $\simeq3.75$ cm). 
+Increasing to 1500 bins (narrower bins) sharpens the peak and reveals more detail; $\delta t$ resolvability improves to $\simeq 0.833\times100$ ps (distance step $\simeq$ 1.25 cm), while per-bin random fluctuation becomes more visible. The main-peak location hardly moves across bin settings, showing that the estimate is insensitive to the choice of binning. 
+Simple conclusion:
+More bins $\rightarrow$ higher resolution but noisier appearance; 
+Fewer bins $\rightarrow$ smoother plots but larger bin-quantization error. 
+For this dataset, 900-1500 bins provide finer readout without introducing bias and are suitable for the primary distance-estimation display.
+\begin{figure}[H]
+	\centering 
+		\includegraphics[height= .25\columnwidth]{fig/part1_bin_res.jpg}
+  \caption{Depth Graph and the detected Edge Graph}
+\label{fig:part1}
+\end{figure}
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Experiment 2: Distance Detection with Window Filter}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+We first construct ToF samples by keeping, for each emission, only the earliest detected photon and restricting $ \Delta t $ to $ [0, 1250] $. On the resulting $ \Delta t $ histogram we evaluate a $ 3\times 3 $ grid of settings: three bin counts (500/1000/1500) and three window widths (21/31/41 bins). We record FWHM, PeakSum, and Density $ (= \mathrm{PeakSum}/W) $. Across all nine combinations, $ \Delta t^{*} $ is highly consistent ($ \approx 906\text{--}907\times 100\ \mathrm{ps} $, distance $ \approx 13.6\ \mathrm{m} $), demonstrating that the centroid estimate is robust to binning and window choices.
 
+Differences appear mainly in peak shape and confidence metrics: with a smaller window (21 bins), FWHM is narrowest and Density higher, tightly locking onto the peak core but being more sensitive to occasional spikes; with larger windows (31/41 bins), more tail samples are included, FWHM widens and Density decreases, yielding a smoother peak without shifting its center.
+
+Regarding binning, moving to 1000–1500 bins offers a finer $ \Delta t $ grid; although per-bin counts drop, the sliding window aggregates them (denoising), keeping $ \Delta t^{*} $ stable and mitigating bin-quantization effects. Combining the indicators and plots, 1000–1500 bins with a 21–31-bin window is a balanced operating region.
+
+\begin{figure}[H]
+	\centering 
+	\subcaptionbox{\centering Histograms of the estimated distance with different resolution 
+		\label{fig:part2_hist}}{
+		\includegraphics[width = .45\columnwidth]{fig/part2_bin_res.jpg}
+    }
+	\subcaptionbox{\centering Table of the estimated distance with different resolution 
+		\label{fig:part2_table}}{
+		\includegraphics[width = .45\columnwidth]{fig/part2_table.jpg}
+    }
+  \caption{Distance Detection with Window Filter}
+\label{fig:part2}
+\end{figure}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Experiment 3: Edge Detection}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 For this section we perform an edge detection with a linear kernel.
+
+Given a depth map $Z(x,y)$, edges correspond to locations where the surface 
+geometry changes abruptly. These discontinuities manifest as large 
+first-- or second--order derivatives. In a discrete image, we approximate 
+derivatives through linear convolution kernels. This section summarizes the 
+mathematical foundations of the filters used in our experiments.
+
+\subsection{First- and Second-Order Edge Cues}
+
+For a continuous function $Z:\mathbb{R}^2 \to \mathbb{R}$, the relevant 
+differential operators are:
+\begin{align}
+\nabla Z &= 
+\left[ 
+\frac{\partial Z}{\partial x},\; 
+\frac{\partial Z}{\partial y}
+\right], 
+\\[4pt]
+\Delta Z &= 
+\frac{\partial^2 Z}{\partial x^2}
++
+\frac{\partial^2 Z}{\partial y^2}.
+\end{align}
+
+First derivatives ($\nabla Z$) measure \emph{changes in slope}, while 
+second derivatives ($\Delta Z$) measure \emph{curvature}. Both are useful 
+for detecting different forms of depth discontinuity.
+
+\subsection{Laplacian Filter}
+
+The Laplacian operator is a rotation-invariant second derivative:
+\begin{equation}
+\Delta Z = 
+\frac{\partial^2 Z}{\partial x^2}
++
+\frac{\partial^2 Z}{\partial y^2}.
+\end{equation}
+
+Its discrete approximation (MATLAB \verb|fspecial('laplacian')| with 
+parameter $\alpha=0$) is:
+\begin{equation}
+h_{\text{lap}} = 
+\begin{bmatrix}
+0 & 1 & 0 \\
+1 & -4 & 1 \\
+0 & 1 & 0
+\end{bmatrix}.
+\end{equation}
+
+The convolution
+\begin{equation}
+L = Z * h_{\text{lap}}
+\end{equation}
+produces large responses where the curvature is high. Laplacian edges are 
+typically thin and sensitive to noise, making the operator effective for 
+highlighting sharp depth transitions.
+
+\begin{figure}[H]
+	\centering 
+		\includegraphics[width= .45\columnwidth]{fig/laplace_bin.png}
+  \caption{Depth Graph and the detected Edge Graph}
+\label{fig:part3_laplace}
+\end{figure}
+\subsection{Sobel Operator}
+
+The Sobel operator estimates first derivatives with additional smoothing 
+in the direction orthogonal to differentiation. The horizontal and vertical 
+Sobel kernels are:
+\begin{align}
+h_x^{\text{sobel}} &= 
+\begin{bmatrix}
+1 & 0 & -1 \\
+2 & 0 & -2 \\
+1 & 0 & -1
+\end{bmatrix},
+&
+h_y^{\text{sobel}} &= 
+\begin{bmatrix}
+1 & 2 & 1 \\
+0 & 0 & 0 \\
+-1 & -2 & -1
+\end{bmatrix}.
+\end{align}
+
+The gradients are computed as
+\begin{align}
+G_x &= Z * h_x^{\text{sobel}}, \\
+G_y &= Z * h_y^{\text{sobel}},
+\end{align}
+and combined into a gradient magnitude:
+\begin{equation}
+M_{\text{sobel}}
+= 
+\sqrt{G_x^2 + G_y^2}.
+\end{equation}
+
+Sobel is more robust to noise than pure finite differences due to its 
+built-in smoothing.
+
+\begin{figure}[H]
+	\centering 
+		\includegraphics[width= .45\columnwidth]{fig/sobel.png}
+  \caption{Edge Detection with Sobel Filter}
+\label{fig:part3_Sobel}
+\end{figure}
+\subsection{Prewitt Operator}
+
+The Prewitt filter is conceptually similar to Sobel but replaces the 
+Gaussian-like smoothing with a uniform box kernel:
+\begin{align}
+h_x^{\text{prewitt}} &= 
+\begin{bmatrix}
+1 & 0 & -1 \\
+1 & 0 & -1 \\
+1 & 0 & -1
+\end{bmatrix},
+&
+h_y^{\text{prewitt}} &= 
+\begin{bmatrix}
+1 & 1 & 1 \\
+0 & 0 & 0 \\
+-1 & -1 & -1
+\end{bmatrix}.
+\end{align}
+
+Its gradient magnitude is defined analogously:
+\begin{equation}
+M_{\text{prewitt}}
+= 
+\sqrt{
+  (Z * h_x^{\text{prewitt}})^2
++
+  (Z * h_y^{\text{prewitt}})^2 }.
+\end{equation}
+
+Prewitt is computationally simpler but also somewhat more sensitive to noise.
+\begin{figure}[H]
+	\centering 
+		\includegraphics[width= .45\columnwidth]{fig/prewitt.png}
+  \caption{Edge Detection with Prewitt Filter}
+\label{fig:part3_Prewitt}
+\end{figure}
+
+\subsection{Hybrid Laplacian--Sobel Edge Measure}
+
+To combine the complementary advantages of first- and second-order cues, 
+we form a convex combination of the Laplacian response and the Sobel 
+gradient magnitude:
+\begin{equation}
+H = 
+\alpha \, |Z * h_{\text{lap}}|
++
+(1 - \alpha) \, M_{\text{sobel}},
+\qquad
+0 \le \alpha \le 1.
+\end{equation}
+
+Here,
+\begin{itemize}
+    \item $\alpha = 1$ yields a pure Laplacian detector (sharp, thin edges),
+    \item $\alpha = 0$ yields a pure Sobel detector (smooth, stable gradients),
+    \item $0 < \alpha < 1$ provides a multi-scale response capturing both
+          curvature-based and slope-based variations.
+\end{itemize}
+
+This hybrid formulation is particularly effective for depth maps, where 
+both abrupt depth jumps and gradual surface inclinations are informative.
+
+\begin{figure}[H]
+	\centering 
+		\includegraphics[width= .45\columnwidth]{fig/inter_laplace_sobel_bin.png}
+  \caption{Edge Detection with Interpolation of Two Filters}
+\label{fig:part3_interp}
+\end{figure}
+
+\subsection{Summary}
+
+Table~\ref{tab:filter_summary} summarizes the mathematical structure and 
+behavior of the filters.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lccc}
+\toprule
+\textbf{Filter} & \textbf{Operator Type} & \textbf{Mathematical Form} & \textbf{Characteristics} \\
+\midrule
+Laplacian & 2nd derivative & $\Delta Z$ & Sharp, thin, noise-sensitive \\
+Sobel & 1st derivative + smoothing & $\|\nabla Z\|$ & Robust, oriented edges \\
+Prewitt & 1st derivative + box smoothing & $\|\nabla Z\|$ & Simple, slightly noisier \\
+Hybrid & Combination & $\alpha |\Delta Z| + (1-\alpha)\|\nabla Z\|$ & Multi-scale, flexible \\
+\bottomrule
+\end{tabular}
+\caption{Comparison of edge detection filters for depth images.}
+\label{tab:filter_summary}
+\end{table}
 
 
 \begin{figure}[H]
@@ -164,10 +393,198 @@ For this section we perform an edge detection with a linear kernel.
     }
 	\subcaptionbox{\centering Original Depth Graph 
 		\label{fig:part3_depth_hot}}{
-		\includegraphics[height= .25\columnwidth]{fig/part3_full_Depth.png}
+		\includegraphics[height= .25\columnwidth]{fig/part3_depth_hotmap.png}
     }
   \caption{Depth Graph and the detected Edge Graph}
 \label{fig:part3}
+\end{figure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Experiment 4: Point Cloud Construction, Registration, and Depth Reprojection}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+In this section we describe the processing pipeline used to convert raw depth
+images into 3D point clouds, register and merge them, and finally reproject
+the fused geometry back into a reconstructed depth map. For clarity, the code
+is divided into several logical stages, each accompanied by a short explanation.
+
+%----------------------------------------------------------
+\subsection{Loading Depth Metadata and Raw Z16 Images}
+
+We first parse camera metadata (intrinsic parameters and resolution) from CSV
+files and load the corresponding raw depth images stored in 16-bit (Z16)
+format. The variable \verb|scale| converts depth units (e.g., millimeters
+to meters), and \verb|flipY| controls vertical image flipping to match the
+camera coordinate system.
+
+\begin{lstlisting}[language=Matlab,caption={Parsing metadata and loading raw depth maps}]
+meta1 = parse_depth_meta('part3_full_Depth_metadata.csv');
+meta2 = parse_depth_meta('part3_full_left_Depth_metadata.csv');
+meta3 = parse_depth_meta('part3_full_right_Depth_metadata.csv');
+scale = 1e-3;         
+flipY = true;    
+
+% Load depth images (uint16 Z16 depth)
+[D1, ~] = readZ16Raw('part3_full_Depth.raw', meta1.W, meta1.H);
+[D2, ~] = readZ16Raw('part3_full_left_Depth.raw', meta2.W, meta2.H);
+[D3, ~] = readZ16Raw('part3_full_right_Depth.raw', meta3.W, meta3.H);
+\end{lstlisting}
+
+%----------------------------------------------------------
+\subsection{Depth-to-Point-Cloud Conversion}
+
+Next, each depth map is projected into 3D space using the camera intrinsics
+contained in the metadata. The function \verb|depthToPC| implements the
+pinhole projection model to produce MATLAB \verb|pointCloud| objects.
+
+\begin{lstlisting}[language=Matlab,caption={Converting depth images to 3D point clouds}]
+% Convert depth maps to point clouds
+pc1 = depthToPC(D1, meta1, scale, flipY);
+pc2 = depthToPC(D2, meta2, scale, flipY);
+pc3 = depthToPC(D3, meta3, scale, flipY);
+\end{lstlisting}
+
+%----------------------------------------------------------
+\subsection{Region-of-Interest Cropping}
+
+To focus on the region of interest and discard distant or irrelevant points,
+we crop the point clouds using an axis-aligned 3D bounding box. The ROI is
+specified as \verb|[xmin xmax ymin ymax zmin zmax]| in meters.
+
+\begin{lstlisting}[language=Matlab,caption={Cropping point clouds to a 3D ROI}]
+% ROI cropping: [xmin xmax ymin ymax zmin zmax]
+roi = [-1 1 -1 1 0.2 3];
+
+pc1 = select(pc1, findPointsInROI(pc1, roi));
+pc2 = select(pc2, findPointsInROI(pc2, roi));
+pc3 = select(pc3, findPointsInROI(pc3, roi));
+\end{lstlisting}
+
+%----------------------------------------------------------
+\subsection{Noise Filtering and Voxel Downsampling}
+
+We then apply statistical denoising to remove isolated outliers, followed by
+voxel grid downsampling to reduce the point density. The denoising step
+\verb|pcdenoise| uses a neighborhood-based threshold, while
+\verb|pcdownsample| averages points inside cubic voxels of a given size.
+
+\begin{lstlisting}[language=Matlab,caption={Denoising and voxel downsampling}]
+% Remove isolated noise points
+pc1 = pcdenoise(pc1,'NumNeighbors',24,'Threshold',1);
+pc2 = pcdenoise(pc2,'NumNeighbors',24,'Threshold',1);
+pc3 = pcdenoise(pc3,'NumNeighbors',24,'Threshold',1);
+
+% Downsample using voxel grid (1 cm voxels)
+voxel = 0.01;
+f1 = pcdownsample(pc1,'gridAverage',voxel);
+f2 = pcdownsample(pc2,'gridAverage',voxel);
+f3 = pcdownsample(pc3,'gridAverage',voxel);
+\end{lstlisting}
+
+%----------------------------------------------------------
+\subsection{Pairwise ICP Registration}
+
+To align the different views into a common coordinate frame, we use
+Iterative Closest Point (ICP) registration. First, point cloud 2 is
+registered to point cloud 1 using a point-to-plane metric. We then form
+an intermediate merged model and register point cloud 3 to this model.
+
+\begin{lstlisting}[language=Matlab,caption={ICP registration between downsampled point clouds}]
+% Register point cloud 2 to point cloud 1
+[t21, reg2, rmse21] = pcregistericp(f2, f1, ...
+    'Metric','pointToPlane', 'InlierRatio',0.6, ...
+    'MaxIterations',100, 'Tolerance',[1e-5 0.5]);
+
+% Merge pc1 and transformed pc2 into an intermediate model
+model = pcmerge(pctransform(pc2, t21), pc1, voxel);
+
+% Register point cloud 3 to the intermediate merged model
+[t31, reg3, rmse31] = pcregistericp(f3, ...
+    pcdownsample(model,'gridAverage',voxel), ...
+    'Metric','pointToPlane','InlierRatio',0.6, ...
+    'MaxIterations',100, 'Tolerance',[1e-5 0.5]);
+\end{lstlisting}
+
+%----------------------------------------------------------
+\subsection{Transforming and Merging Full-Resolution Point Clouds}
+
+Once the rigid transforms have been estimated using downsampled data, we apply
+them to the original (non-downsampled) point clouds. The three aligned point
+clouds are then merged into a single dense point cloud using a voxel-based
+fusion.
+
+\begin{lstlisting}[language=Matlab,caption={Applying transforms and merging full-resolution clouds}]
+% Apply ICP transforms to the original point clouds
+pc2_aligned = pctransform(pc2, t21);
+pc3_aligned = pctransform(pc3, t31);
+
+% Merge all three point clouds into a unified model
+merged = pcmerge(pc1, pc2_aligned, voxel);
+merged = pcmerge(merged, pc3_aligned, voxel);
+
+% Visualization of pairwise alignment and final merged cloud
+figure; pcshowpair(pc1, pc2_aligned);
+title('pc1 (cyan) vs pc2 aligned (magenta)');
+
+figure; pcshowpair(pc1, pc3_aligned);
+title('pc1 (cyan) vs pc3 aligned (magenta)');
+
+figure; pcshow(merged);
+title('Merged point cloud');
+xlabel X; ylabel Y; zlabel Z;
+axis vis3d; view(3);
+\end{lstlisting}
+
+%----------------------------------------------------------
+\subsection{Reprojection to a Depth Map}
+
+Finally, we project the fused 3D point cloud back into the image plane of the
+reference camera (here, camera 1) to obtain a reconstructed depth map. The
+resulting depth image is stored as a raw Z16 file and visualized as a 2D
+colormap image for inspection.
+
+\begin{lstlisting}[language=Matlab,caption={Reprojecting the merged point cloud to a depth map}]
+% Reproject merged point cloud back to the reference camera's depth map
+D_merged = pcToDepthRaw(merged, meta1, 1e-3, true);
+
+% Save reconstructed depth as raw uint16
+fid = fopen('merged_from_pc.raw','w');
+fwrite(fid, D_merged', 'uint16');
+fclose(fid);
+
+% Display reconstructed depth map
+figure;
+imagesc(double(D_merged) * 1e-3);
+axis image off;
+colormap(turbo); colorbar;
+title('Depth map reprojected from merged point cloud');
+
+% Save a normalized grayscale visualization to PNG
+imwrite(mat2gray(double(D_merged)), 'merged_depth_colored.png');
+fprintf('Saved colored 2D depth map to merged_depth_colored.png\n');
+\end{lstlisting}
+
+\begin{figure}[H]
+	\centering 
+	\subcaptionbox{\centering Edge detection of the merged graph  
+		\label{fig:part4_edge}}{
+		\includegraphics[height= 0.35\columnwidth]{fig/merged_edge_detect.png}
+    }
+	\subcaptionbox{\centering 2D hotmap of the merged graph 
+		\label{fig:part4_hot}}{
+		\includegraphics[height= 0.35\columnwidth]{fig/merged_depth_hotmap.png}
+    }
+    \\
+	\subcaptionbox{\centering merged graph, straight perspective 
+		\label{fig:part4_straight}}{
+		\includegraphics[height= 0.35\columnwidth]{fig/merged_straight.png}
+    }
+	\subcaptionbox{\centering merged graph, rotated perspective 
+		\label{fig:part4_rot}}{ 
+		\includegraphics[height= 0.35\columnwidth]{fig/merged_rot.png}
+    }
+  \caption{Depth Graph and the detected Edge Graph}
+\label{fig:part4}
 \end{figure}
 
 

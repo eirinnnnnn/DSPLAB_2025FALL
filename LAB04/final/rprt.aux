@@ -3,14 +3,64 @@
 \providecommand\HyField@AuxAddToFields[1]{}
 \providecommand\HyField@AuxAddToCoFields[2]{}
 \providecommand \oddpage@label [2]{}
-\@writefile{toc}{\contentsline {section}{\numberline {1}Experiment 1: }{1}{section.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {2}Experiment 3: Edge Detection}{1}{section.2}\protected@file@percent }
-\providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
-\newlabel{fig:part3_edge}{{1a}{1}{\centering Edge Detection}{figure.caption.1}{}}
-\newlabel{sub@fig:part3_edge}{{a}{1}{\centering Edge Detection}{figure.caption.1}{}}
-\newlabel{fig:part3_depth_hot}{{1b}{1}{\centering Original Depth Graph}{figure.caption.1}{}}
-\newlabel{sub@fig:part3_depth_hot}{{b}{1}{\centering Original Depth Graph}{figure.caption.1}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {1}Experiment 1: Distance Detection with Direct Histogram Construction}{1}{section.1}\protected@file@percent }
 \@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Depth Graph and the detected Edge Graph}}{1}{figure.caption.1}\protected@file@percent }
-\newlabel{fig:part3}{{1}{1}{Depth Graph and the detected Edge Graph}{figure.caption.1}{}}
+\providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
+\newlabel{fig:part1}{{1}{1}{Depth Graph and the detected Edge Graph}{figure.caption.1}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {2}Experiment 2: Distance Detection with Window Filter}{1}{section.2}\protected@file@percent }
+\newlabel{fig:part2_hist}{{2a}{2}{\centering Histograms of the estimated distance with different resolution}{figure.caption.2}{}}
+\newlabel{sub@fig:part2_hist}{{a}{2}{\centering Histograms of the estimated distance with different resolution}{figure.caption.2}{}}
+\newlabel{fig:part2_table}{{2b}{2}{\centering Table of the estimated distance with different resolution}{figure.caption.2}{}}
+\newlabel{sub@fig:part2_table}{{b}{2}{\centering Table of the estimated distance with different resolution}{figure.caption.2}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Distance Detection with Window Filter}}{2}{figure.caption.2}\protected@file@percent }
+\newlabel{fig:part2}{{2}{2}{Distance Detection with Window Filter}{figure.caption.2}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {3}Experiment 3: Edge Detection}{2}{section.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}First- and Second-Order Edge Cues}{2}{subsection.3.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Laplacian Filter}{2}{subsection.3.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Depth Graph and the detected Edge Graph}}{3}{figure.caption.3}\protected@file@percent }
+\newlabel{fig:part3_laplace}{{3}{3}{Depth Graph and the detected Edge Graph}{figure.caption.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3}Sobel Operator}{3}{subsection.3.3}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Edge Detection with Sobel Filter}}{3}{figure.caption.4}\protected@file@percent }
+\newlabel{fig:part3_Sobel}{{4}{3}{Edge Detection with Sobel Filter}{figure.caption.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.4}Prewitt Operator}{3}{subsection.3.4}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces Edge Detection with Prewitt Filter}}{4}{figure.caption.5}\protected@file@percent }
+\newlabel{fig:part3_Prewitt}{{5}{4}{Edge Detection with Prewitt Filter}{figure.caption.5}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.5}Hybrid Laplacian--Sobel Edge Measure}{4}{subsection.3.5}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces Edge Detection with Interpolation of Two Filters}}{4}{figure.caption.6}\protected@file@percent }
+\newlabel{fig:part3_interp}{{6}{4}{Edge Detection with Interpolation of Two Filters}{figure.caption.6}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.6}Summary}{4}{subsection.3.6}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Comparison of edge detection filters for depth images.}}{5}{table.caption.7}\protected@file@percent }
+\newlabel{tab:filter_summary}{{1}{5}{Comparison of edge detection filters for depth images}{table.caption.7}{}}
+\newlabel{fig:part3_edge}{{7a}{5}{\centering Edge Detection}{figure.caption.8}{}}
+\newlabel{sub@fig:part3_edge}{{a}{5}{\centering Edge Detection}{figure.caption.8}{}}
+\newlabel{fig:part3_depth_hot}{{7b}{5}{\centering Original Depth Graph}{figure.caption.8}{}}
+\newlabel{sub@fig:part3_depth_hot}{{b}{5}{\centering Original Depth Graph}{figure.caption.8}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces Depth Graph and the detected Edge Graph}}{5}{figure.caption.8}\protected@file@percent }
+\newlabel{fig:part3}{{7}{5}{Depth Graph and the detected Edge Graph}{figure.caption.8}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {4}Experiment 4: Point Cloud Construction, Registration, and Depth Reprojection}{5}{section.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Loading Depth Metadata and Raw Z16 Images}{5}{subsection.4.1}\protected@file@percent }
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {1}{\ignorespaces Parsing metadata and loading raw depth maps}}{5}{lstlisting.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Depth-to-Point-Cloud Conversion}{5}{subsection.4.2}\protected@file@percent }
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {2}{\ignorespaces Converting depth images to 3D point clouds}}{5}{lstlisting.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Region-of-Interest Cropping}{6}{subsection.4.3}\protected@file@percent }
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {3}{\ignorespaces Cropping point clouds to a 3D ROI}}{6}{lstlisting.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.4}Noise Filtering and Voxel Downsampling}{6}{subsection.4.4}\protected@file@percent }
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {4}{\ignorespaces Denoising and voxel downsampling}}{6}{lstlisting.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.5}Pairwise ICP Registration}{6}{subsection.4.5}\protected@file@percent }
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {5}{\ignorespaces ICP registration between downsampled point clouds}}{6}{lstlisting.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.6}Transforming and Merging Full-Resolution Point Clouds}{6}{subsection.4.6}\protected@file@percent }
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {6}{\ignorespaces Applying transforms and merging full-resolution clouds}}{6}{lstlisting.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.7}Reprojection to a Depth Map}{7}{subsection.4.7}\protected@file@percent }
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {7}{\ignorespaces Reprojecting the merged point cloud to a depth map}}{7}{lstlisting.7}\protected@file@percent }
+\newlabel{fig:part4_edge}{{8a}{8}{\centering Edge detection of the merged graph}{figure.caption.9}{}}
+\newlabel{sub@fig:part4_edge}{{a}{8}{\centering Edge detection of the merged graph}{figure.caption.9}{}}
+\newlabel{fig:part4_hot}{{8b}{8}{\centering 2D hotmap of the merged graph}{figure.caption.9}{}}
+\newlabel{sub@fig:part4_hot}{{b}{8}{\centering 2D hotmap of the merged graph}{figure.caption.9}{}}
+\newlabel{fig:part4_straight}{{8c}{8}{\centering merged graph, straight perspective}{figure.caption.9}{}}
+\newlabel{sub@fig:part4_straight}{{c}{8}{\centering merged graph, straight perspective}{figure.caption.9}{}}
+\newlabel{fig:part4_rot}{{8d}{8}{\centering merged graph, rotated perspective}{figure.caption.9}{}}
+\newlabel{sub@fig:part4_rot}{{d}{8}{\centering merged graph, rotated perspective}{figure.caption.9}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {8}{\ignorespaces Depth Graph and the detected Edge Graph}}{8}{figure.caption.9}\protected@file@percent }
+\newlabel{fig:part4}{{8}{8}{Depth Graph and the detected Edge Graph}{figure.caption.9}{}}
 \bibcite{oppenheim2010dsp}{1}
-\gdef \@abspage@last{2}
+\gdef \@abspage@last{9}
