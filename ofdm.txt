@@ -1,0 +1,45 @@
+% blind OFDM
+clear;
+Nsym = 2000;
+Nfft = 256;
+Nact = 144;
+Ncp = Nfft/8;
+SNR = 25;
+M = 64;
+
+data = randi([0, M-1], Nact, Nsym); % 144 x 2000;
+a = qammod(data, M);
+
+% gaurd band
+gb = (Nfft - Nact)/2;
+x_tx_f = [zeros(gb, Nsym); a; zeros(gb, Nsym)]; % 256 x 2000;
+
+% ifft
+x_tx_t = ifft(x_tx_f, Nfft); % 256 x 2000;
+
+% +cp
+x_tx_t_cp = [x_tx_t(end-Ncp+1:end, :); x_tx_t ];
+x_tx_t_sp = x_tx_t_cp(:).';
+
+Ptx = mean(abs(x_tx_t_sp).^2);
+Pn = Ptx * 10^(-SNR/10);
+sigma_n = sqrt(Pn/2);
+
+% channel
+x_rx_t_sp = x_tx_t_sp + sigma_n * (randn(1, numel(x_tx_t_sp)) + 1j*randn(1, numel(x_tx_t_sp)));
+% x_rx_t_sp = awgn(x_tx_t_sp, SNR, "measured");
+x_rx_t_cp = reshape(x_rx_t_sp, Nfft+Ncp, Nsym);
+x_rx_t = x_rx_t_cp(Ncp+1:end, :); % 256 x 2000
+
+x_rx_f = fft(x_rx_t, Nfft);
+a_hat = x_rx_f(gb+1:end-gb, :); % 144 x 2000
+data_hat = qamdemod(a_hat, M);
+
+figure();
+
+scatter(real(a_hat(:)), imag(a_hat(:)), ".");
+hold on;
+scatter(real(a(:)), imag(a(:)), ".");
+grid on; axis equal;
+
+SER = mean(data(:) ~= data_hat(:))

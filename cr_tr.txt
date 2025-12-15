@@ -1,0 +1,97 @@
+clear; close all;
+
+% a blind attempt on gardner cr -> tr
+
+% pulse shaping generation
+sps = 2;
+span = 10;
+alpha = 0.25;
+
+n = (-sps*span/2 : sps*span/2) + 1e-12;
+
+h_srrc = (4*alpha/pi) * ( cos( (1+alpha)*pi*n / sps ) + sps*sin( (1-alpha)*pi*n / sps ) ./ (4*alpha*n) ) ./ ( 1 - (4*alpha*n/sps).^2 );
+h_srrc = h_srrc / sqrt(sum(abs(h_srrc).^2));
+
+% symbol generation
+M = 4;
+Nsym = 10000;
+data = randi([0, M-1], 1, Nsym);
+a = pskmod(data, M);
+
+a_up = upsample(a, sps);
+% a_up_self = zeros(1, Nsym*sps);
+% for i = 1:Nsym*sps
+%     if (mod(i, sps) == 1)
+%       a_up_self(i) = a((i+1)/sps);  
+%     end
+% end
+% upsample = mean(a_up ~= a_up_self);
+
+x_tx = conv(a_up, h_srrc, "same");
+t_tx = (0:numel(x_tx)-1)/numel(x_tx);
+x_rx = conv(x_tx, h_srrc, "same");
+
+% resample
+p = 1010; q = 1000;
+r = resample(x_rx, p, q);
+Lr = numel(r);
+t_rx = (0:(Lr)-1)/Lr;
+
+cfo = 0.9;
+r = r .* exp(1j*cfo*t_rx);
+
+
+% PI settings
+Kp = 0.03; Ki = 0.001;
+Kpc = 0.5; Kic = 0.008;
+% PI loop
+eps = zeros(1, Nsym-1); phi = zeros(1, Nsym-1); y = zeros(1, Nsym-1);
+epsc = zeros(1, Nsym-1); phic = zeros(1, Nsym-1);
+c = 0; cc = 0;
+t = 1;
+
+for k = 2:Nsym
+    if t > Lr || t +sps > Lr || t + sps/2 > Lr
+        break;
+    end
+    % y(k-1) = y(k-1);
+    rk = interpolation(r, t)*exp(-1j*phic(k-1));
+    rh = interpolation(r, t + sps/2)*exp(-1j*phic(k-1));
+    rk1 = interpolation(r, t + sps)*exp(-1j*phic(k-1));
+
+    % er = real(rh)*(sign(real(rk)) - sign(real(rk1)));
+    % ei = imag(rh)*(sign(imag(rk)) - sign(imag(rk1)));
+    % eps(k) = er + ei;
+    eps(k) = real( rh * conj(rk - rk1));
+    
+    c = c + Kp*(eps(k) - eps(k-1)) + Ki*eps(k);
+    t = t + c;
+    t = max(1, min(Lr, t));
+    y(k-1) = interpolation(r, t)*exp(-1j*phic(k-1));    
+    xn = y(k-1)^M;
+    epsc(k) = angle(xn)/ M;
+    cc = cc + Kpc*(epsc(k) - epsc(k-1)) + Kic*epsc(k);
+    phic(k) = phic(k-1) + cc;
+    
+    
+
+    phi(k-1) = t/Lr;
+    t = t + sps;
+end
+figure();
+scatter(real(r), imag(r), ".");
+hold on;
+scatter(real(y), imag(y), ".");
+legend("before", "after");
+grid on; axis equal; 
+title("timing recovery");
+
+function xtau = interpolation(x, tau)
+    k = floor(tau);
+    delta = tau - k;
+
+    xtau = delta*x(k+1) + (1-delta)*x(k);
+    return;
+end
+
+
