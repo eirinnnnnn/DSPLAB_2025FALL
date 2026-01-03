@@ -1,0 +1,356 @@
+\documentclass[10pt,onecolumn]{IEEEtran}
+\usepackage[a4paper, margin=.9in]{geometry}
+% \usepackage{xeCJK}
+% \setCJKmainfont{Microsoft YaHei} 
+\newcommand{\DOUBLECOL}{}	% turns this on for double column
+\newlength{\subfigureheight}
+\newlength{\figurewidth}
+\ifdefined\DOUBLECOL
+\setlength{\subfigureheight}{2.45in}
+\setlength{\figurewidth}{3.5in}
+\else
+\setlength{\subfigureheight}{2.35in}
+\setlength{\figurewidth}{6.5in}
+\fi
+\usepackage{amsfonts,amsmath,amssymb,bm,cancel,color,comment,epsfig,enumerate,empheq,floatrow,hyperref,mathdots,mathrsfs}
+\usepackage{placeins}%\usepackage{algorithmic}
+\usepackage[vlined,ruled,linesnumbered]{algorithm2e}
+\SetKwInput{KwInput}{Input}                % Set the Input
+\SetKwInput{KwOutput}{Output}              % set the Output
+\SetKwRepeat{Do}{do}{until}%
+\usepackage{graphicx}
+%\usepackage{amsthm}
+\usepackage[super]{nth}
+\usepackage[noadjust]{cite}
+\usepackage{subcaption}
+\usepackage{tabularx}
+\usepackage{tabularray}		% make thing horizontal lines in tabular
+\UseTblrLibrary{booktabs}	% make thing horizontal lines in tabular
+
+\usepackage{listings}
+\usepackage{xcolor}
+
+% --- MATLAB code style ---
+\lstdefinelanguage{Matlab}{
+  morekeywords={break,case,catch,continue,else,elseif,end,for,function,
+    global,if,otherwise,persistent,return,switch,try,while},
+  sensitive=true,
+  morecomment=[l]\%,
+  morestring=[m]',
+}
+\lstset{
+  language=Matlab,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{gray},
+  stringstyle=\color{red!70!black},
+  numbers=left,
+  numberstyle=\tiny,
+  stepnumber=1,
+  numbersep=5pt,
+  frame=single,
+  breaklines=true,
+  showstringspaces=false,
+  columns=fullflexible
+}
+
+
+% --- TikZ setup ---
+\usepackage{tikz}
+\usetikzlibrary{positioning,shapes,arrows.meta,calc}
+\usetikzlibrary{decorations.pathreplacing}
+
+% \tikzstyle{block} = [rectangle, rounded corners, minimum width=3cm, minimum height=1cm,
+%                      text centered, draw=black, fill=blue!10]
+% \tikzstyle{arrow} = [thick,->,>=stealth]
+
+\tikzset{
+  >={Latex[length=3mm]},
+  block/.style={draw, thick, rectangle, minimum width=2.8cm, minimum height=1.2cm, align=center},
+  filter/.style={draw, thick, trapezium, trapezium left angle=70, trapezium right angle=110,
+                 minimum width=3.0cm, minimum height=1.2cm, align=center},
+  mixer/.style={circle, draw, thick, minimum size=8mm, inner sep=0pt,
+                path picture={
+                  \draw[]
+                    (-2.4mm,-2.4mm)--(2.4mm,2.4mm)
+                    (-2.4mm,2.4mm)--(2.4mm,-2.4mm);
+                }},
+  conn/.style={thick, -{Latex}}
+}
+
+% \graphicspath{{eps/}}
+
+\hypersetup{
+	colorlinks=true,
+	linkcolor=red,
+	citecolor=green,
+	filecolor=magenta,
+	urlcolor=blue
+}
+
+
+\newenvironment{Ualgorithm}[1][htpb]{\def\@algocf@post@ruled{\kern\interspacealgoruled\hrule  height\algoheightrule\kern3pt\relax}%
+\def\@algocf@capt@ruled{under}
+\begin{algorithm}[#1]}
+{\end{algorithm}}
+
+\setcounter{MaxMatrixCols}{30}
+\DeclareSymbolFont{grb}{OML}{cmm}{b}{it}
+\DeclareMathSymbol{\zetab}{\mathord}{grb}{"10}
+\DeclareMathSymbol{\etab}{\mathord}{grb}{"11}
+\DeclareMathSymbol{\thetab}{\mathord}{grb}{"12}
+\DeclareMathSymbol{\kappab}{\mathord}{grb}{"14}
+\DeclareMathSymbol{\lambdab}{\mathord}{grb}{"15}
+\DeclareMathSymbol{\mub}{\mathord}{grb}{"16}
+\DeclareMathSymbol{\nub}{\mathord}{grb}{"17}
+\DeclareMathSymbol{\rhob}{\mathord}{grb}{"1A}
+\DeclareMathSymbol{\sigmab}{\mathord}{grb}{"1B}
+\DeclareMathSymbol{\taub}{\mathord}{grb}{"1C}
+\DeclareMathSymbol{\phib}{\mathord}{grb}{"1E}
+\DeclareMathSymbol{\psib}{\mathord}{grb}{"20}
+\DeclareMathSymbol{\omegab}{\mathord}{grb}{"21}
+\DeclareMathSymbol{\epsilonb}{\mathord}{grb}{"22}
+\DeclareMathSymbol{\varphib}{\mathord}{grb}{"27}
+\input{Symbol_Shortcut.tex}
+
+\newtheorem{theorem}{\bf Theorem}		% by Victor
+\newtheorem{corollary}{\bf Corollary}	% by Victor
+\newtheorem{definition}{\bf Definition}	% by Victor
+
+%\centerfigcaptionstrue
+
+%\pagestyle{empty}
+
+\makeatletter
+\def\ifundefined{\@ifundefined}
+\makeatother
+
+\setlength{\parskip}{0ex}
+
+% generating the double accent on o, i.e. \fH{o}, e.g. Erdos Renyi 
+\newcommand\fH[1]{\sbox0{#1}\dimen0=\ht0 \advance\dimen0 -1ex
+  \sbox2{\'{}}\sbox2{\raise\dimen0\box2}%
+  {\ooalign{\hidewidth\kern.1em\copy2\kern-.5\wd2\box2\hidewidth\cr\box0\crcr}}}
+
+\title{\vspace{-0.2em} \large FINAL Report\\
+\Huge Digital Theremin \\
+\Large a Full Implementation with Renessas MCU AIK-RA8D1
+}
+
+% \ifdefined \BLIND
+\author{
+  Team Lemon Tea \\
+  Pin-Jing, Li (111511015 \it{ouo.ee11@nycu.edu.tw})\\ 
+Ching-Kai, Huang (111511151 \it{kevin.ee11@nycu.edu.tw})\\ 
+Duan-Kai, Hu (112511015 \it{huduankai@gmail.com})}
+
+
+
+
+
+% \markboth{IEEE Trans. on Communications}{Model-Driven Based MIMO Channel Estimator}
+\begin{document}
+\maketitle
+
+\begin{abstract}
+  
+\end{abstract}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Introduction}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+I believe that our group is one of the only few groups giving a hoot about the assigned Renessas MCU as the main research focus.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Circuit Deployment}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Our implementation includes three main parts.
+
+\begin{itemize}
+\item[1] AIK-RA8D1 Development Board
+The core MCU of this experiment, responsible for control, signal acquisition, and data processing.
+Provides ADC pins (e.g., AN121, AN000, AN001) for analog signal sampling and transfers data to PC via USB CDC.
+Supports interfaces such as I²C and UART for peripheral communication.
+
+\item[2]HC-SR04 Ultrasonic Module
+Transmitter (Tx): Triggered by a high-level signal ($<$10 $\mu$s), it emits 8 pulses at 40 kHz.
+Receiver (Rx): Captures the reflected signal, which is sampled by the MCU’s ADC.
+
+\item[3]HP-122 Passive Buzzer
+
+Distance is calculated through time-of-flight (ToF) measurement, considering the speed of sound in air 
+V=331+0.6t m/s.
+\end{itemize}
+
+\begin{figure}[!h]
+	\centering
+		\label{fig:circuit}
+		\includegraphics[width=0.85\columnwidth]{fig/circuit_schematic.jpg}
+	\caption{hardware configurations}
+\end{figure}
+\begin{figure}[!h]
+	\centering
+	\subcaptionbox{Circuit deployment on our beloved AIK-RA8D1.
+		\label{fig:reflector}}{
+		\includegraphics[height=0.45\columnwidth]{fig/arduino.jpg}}
+	\subcaptionbox{measurement experiments setups. We use our tablet as the reflection board, and the distance is referenced with the table pad.
+		\label{fig:stick_on_10k_board}}{
+		\includegraphics[height=0.45\columnwidth]{fig/S__59039761_0.jpg}}
+	\caption{hardware configurations}
+\label{fig:real_world_image}
+\end{figure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{FPS configurations}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Callback Submodules Implementations}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Main Control Flow Implementation}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Error Source Analysis}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+We analyzed the measured peak indices across multiple distances and compared them with the theoretical sample indices $n^*$ computed from the speed of sound at $T = 25^\circ\mathrm{C}$. This allowed us to examine the trend of the measurement error and construct a model for calibration.
+
+\begin{table}[h!]
+\centering
+\caption{Relative Distance Comparison (Measured vs. Theoretical)}
+\begin{tabular}{|c|c|c|c|c|c|c|}
+\hline
+Pair (cm) & $n^*_{\mathrm{theory}}$ & $n_{\mathrm{meas}}$ &
+$\Delta n^*_{\mathrm{theory}}$ & $\Delta n_{\mathrm{meas}}$ &
+$\frac{\Delta n_{\mathrm{meas}}}{\Delta n^*_{\mathrm{theory}}}$ &
+Relative Error (\%) \\
+\hline
+20$\rightarrow$40 & 184.97$\rightarrow$369.94 & 231$\rightarrow$412 & 184.97 & 181 & 0.979 & $-2.1$ \\
+40$\rightarrow$60 & 369.94$\rightarrow$554.91 & 412$\rightarrow$598 & 184.97 & 186 & 1.006 & $+0.6$ \\
+60$\rightarrow$80 & 554.91$\rightarrow$739.88 & 598$\rightarrow$773 & 184.97 & 175 & 0.946 & $-5.4$ \\
+80$\rightarrow$100 & 739.88$\rightarrow$924.86 & 773$\rightarrow$953 & 184.97 & 180 & 0.973 & $-2.7$ \\
+\hline
+\end{tabular}
+\end{table}
+
+The measured peak indices $n_{\mathrm{meas}}$ were aligned relative to the start of transmission, determined by the maximum slope of the Tx waveform. We then plotted $n_{\mathrm{meas}}$ against $n^*$, as well as the corresponding sample index error $\Delta n = n_{\mathrm{meas}} - n^*$, as shown below.
+
+\begin{figure}[!h]
+	\centering
+	\subcaptionbox{Measured peak index and theoretical $n^*$ at $T=25^\circ\mathrm{C}$%
+		\label{fig:sample_meas_theo}}{
+		\includegraphics[width=0.45\columnwidth]{fig/distance_vs_sample_theo_meas.png}}
+	\subcaptionbox{Sample index error vs. distance%
+		\label{fig:error_vs_dist}}{
+		\includegraphics[width=0.45\columnwidth]{fig/distance_vs_delta.png}}
+	\caption{Comparison between measured peak indices and theoretical sample indices.}
+\label{fig:robust_lin}
+\end{figure}
+
+From Fig.~\ref{fig:error_vs_dist}, we observe that the error $\Delta n$ decreases approximately linearly as distance increases, 
+consistent with a fixed system delay plus a small distance-dependent effect. 
+Instead of the usual choice of a constant model, we found out that the error is related to the distance. 
+We therefore model the error as
+
+\[
+\Delta n = a + b\,n_{\mathrm{meas}},
+\]
+
+and use linear regression to estimate $a \simeq 53.14$ and $b \simeq -0.02469$. Applying this model, we compute corrected sample indices $\hat{n} = n_{\mathrm{meas}} - \Delta n$, yielding the results summarized below.
+
+\begin{table}[h!]
+\centering
+\caption{Corrected Sample Index and Residual Distance Error (Linear Model)}
+\begin{tabular}{|c|c|c|c|c|}
+\hline
+True Distance (cm) & $n_{\mathrm{meas}}$ & $\hat{n}$ (Corrected) & $n^{*}$ (Theory) & Error After Correction (cm) \\
+\hline
+20  & 231 & 183.56 & 184.97 & $-0.15$ \\
+40  & 412 & 369.04 & 369.94 & $-0.10$ \\
+60  & 598 & 559.39 & 554.91 & $+0.48$ \\
+80  & 773 & 738.65 & 739.88 & $-0.13$ \\
+100 & 953 & 922.23 & 924.86 & $-0.28$ \\
+\hline
+\end{tabular}\label{tab:corrected_indices}
+\end{table}
+
+The corrected indices significantly reduce the bias, with all residual distance errors falling within $\pm 0.5\ \mathrm{cm}$, demonstrating that the linear error model is effective.
+
+To translate the measured sample index back into a physical distance, we use the relation between
+the sample index $n$, the sampling frequency $F_s$, and the speed of sound $v$.
+Each sample corresponds to a time increment of
+\[
+T_s = \frac{1}{F_s},
+\]
+so the round-trip time corresponding to $n$ samples is
+\[
+t = n \, T_s = \frac{n}{F_s}.
+\]
+
+Assuming a two-way (Tx–Rx) propagation path, the one-way distance is then given by
+\[
+\hat{d} = \frac{v \, t}{2} = \frac{v}{2 F_s}\, n.
+\]
+
+For our experiment at $T = 25^\circ\mathrm{C}$, we use
+$v = 331 + 0.6T \approx 346\ \mathrm{m/s} = 34{,}600\ \mathrm{cm/s}$ and
+$F_s = 160\ \mathrm{kHz}$, which yields the conversion factor
+\[
+k = \frac{v}{2F_s}
+= \frac{34{,}600}{2 \times 160{,}000}
+\simeq 0.1081\ \frac{\mathrm{cm}}{\mathrm{sample}}.
+\]
+
+Thus, the estimated distance from a measured sample index $n_{\mathrm{meas}}$ (or its corrected version $\hat{n}$) is
+\[
+\hat{d} = k \, n.
+\]
+
+This linear relation allows us to directly convert the corrected sample indices from
+Table~\ref{tab:corrected_indices} into absolute distance estimates and to compute residual
+errors in centimeters for performance evaluation.
+
+
+To fully exploit our calibration, we convert our measured width to corresponding number of samples using $F_s = 160kHz$
+\begin{table}[h!]
+\centering
+\caption{Relative Distance Comparison (Measured vs. Theoretical)}
+\begin{tabular}{|c|c|c|c|}
+\hline
+distance(cm) & width($\mu s$) & sample(n) & $\hat{d}$(cm)\\
+\hline
+5   & 327.5 &  52& 5.66\\
+10  & 620.8 &  99&10.74\\
+15  & 941.4 & 151&16.28\\
+20  & 1205.5& 193&20.85\\
+23  & 1240.2& 198&21.45\\
+30  & 1848.9& 296&31.97\\
+\hline
+\end{tabular}
+\end{table}
+
+
+\section{Acknowlegdement}
+We're very appreciated all the support with the Renessas Team, espectially the engineers Steven and Henry, 
+and thanks to Hedy for the effective and responsive communication and schedule coordination.
+Also, thanks for all the TAs for your 
+
+\pagebreak
+
+\begin{thebibliography}{99}
+
+\bibitem{oppenheim2010dsp}
+A.~V.~Oppenheim and R.~W.~Schafer,
+\textit{Discrete-Time Signal Processing}, 3rd~ed.
+Upper Saddle River, NJ, USA: Pearson, 2010.
+
+\end{thebibliography}
+\end{document}
+
+
+
+

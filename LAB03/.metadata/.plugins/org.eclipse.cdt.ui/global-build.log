@@ -1,0 +1,7 @@
+Extracting support files...
+[ERROR] Toolchain configured for project is not currently available. Please add/enable toolchain through Renesas Toolchain Management or select a different toolchain for this project.
+14:26:05 **** Incremental Build of configuration Debug for project lab1_aik_ra8d1_imu_usb_project ****
+make -r -j8 all 
+arm-none-eabi-size --format=berkeley "lab1_aik_ra8d1_imu_usb_project.elf"
+   text	   data	    bss	    dec	    hex	filename
+  34756	    640	  53804	  89200	  15c70	lab1_aik_ra8d1_imu_usb_project.elf
