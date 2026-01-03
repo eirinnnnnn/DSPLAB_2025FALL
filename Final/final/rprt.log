@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023) (preloaded format=pdflatex 2023.8.25)  3 JAN 2026 17:04
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023) (preloaded format=pdflatex 2023.8.25)  3 JAN 2026 17:10
 entering extended mode
  \write18 enabled.
  file:line:error style messages enabled.
@@ -1057,36 +1057,36 @@ Package: ninecolors 2022-02-13 v2022D Select colors with proper color contrast
 Package: xparse 2023-02-02 L3 Experimental document command parser
 ))
 \c@lstlisting=\count385
-LaTeX Font Info:    Trying to load font information for U+msa on input line 170.
+LaTeX Font Info:    Trying to load font information for U+msa on input line 171.
  (c:/texlive/2023/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Trying to load font information for U+msb on input line 170.
+LaTeX Font Info:    Trying to load font information for U+msb on input line 171.
  (c:/texlive/2023/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 )
-LaTeX Font Info:    Trying to load font information for U+rsfs on input line 170.
+LaTeX Font Info:    Trying to load font information for U+rsfs on input line 171.
  (c:/texlive/2023/texmf-dist/tex/latex/jknapltx/ursfs.fd
 File: ursfs.fd 1998/03/24 rsfs font definition file (jk)
 )
-LaTeX Font Info:    Trying to load font information for TS1+ptm on input line 173.
+LaTeX Font Info:    Trying to load font information for TS1+ptm on input line 174.
  (c:/texlive/2023/texmf-dist/tex/latex/psnfss/ts1ptm.fd
 File: ts1ptm.fd 2001/06/04 font definitions for TS1/ptm.
 )
 <fig/circuit_schematic.jpg, id=39, 1472.50125pt x 1003.75pt>
 File: fig/circuit_schematic.jpg Graphic file (type jpg)
 <use fig/circuit_schematic.jpg>
-Package pdftex.def Info: fig/circuit_schematic.jpg  used on input line 188.
+Package pdftex.def Info: fig/circuit_schematic.jpg  used on input line 189.
 (pdftex.def)             Requested size: 397.3122pt x 270.83234pt.
 <fig/arduino.jpg, id=40, 1112.155pt x 1482.53876pt>
 File: fig/arduino.jpg Graphic file (type jpg)
 <use fig/arduino.jpg>
-Package pdftex.def Info: fig/arduino.jpg  used on input line 195.
+Package pdftex.def Info: fig/arduino.jpg  used on input line 196.
 (pdftex.def)             Requested size: 157.78796pt x 210.3388pt.
 <fig/S__59039761_0.jpg, id=41, 1482.53876pt x 1112.155pt>
 File: fig/S__59039761_0.jpg Graphic file (type jpg)
 <use fig/S__59039761_0.jpg>
-Package pdftex.def Info: fig/S__59039761_0.jpg  used on input line 198.
+Package pdftex.def Info: fig/S__59039761_0.jpg  used on input line 199.
 (pdftex.def)             Requested size: 280.37323pt x 210.3388pt.
 
 
@@ -1096,12 +1096,12 @@ LaTeX Warning: `!h' float specifier changed to `!ht'.
 <fig/distance_vs_sample_theo_meas.png, id=52, 498.663pt x 281.853pt>
 File: fig/distance_vs_sample_theo_meas.png Graphic file (type png)
 <use fig/distance_vs_sample_theo_meas.png>
-Package pdftex.def Info: fig/distance_vs_sample_theo_meas.png  used on input line 246.
+Package pdftex.def Info: fig/distance_vs_sample_theo_meas.png  used on input line 247.
 (pdftex.def)             Requested size: 210.3388pt x 118.88493pt.
 <fig/distance_vs_delta.png, id=54, 498.663pt x 281.853pt>
 File: fig/distance_vs_delta.png Graphic file (type png)
 <use fig/distance_vs_delta.png>
-Package pdftex.def Info: fig/distance_vs_delta.png  used on input line 249.
+Package pdftex.def Info: fig/distance_vs_delta.png  used on input line 250.
 (pdftex.def)             Requested size: 210.3388pt x 118.88493pt.
  [2 <./fig/arduino.jpg> <./fig/S__59039761_0.jpg> <./fig/distance_vs_sample_theo_meas.png> <./fig/distance_vs_delta.png>] [3] [4] (./rprt.aux)
  ***********
@@ -1120,7 +1120,7 @@ Here is how much of TeX's memory you used:
  1141 hyphenation exceptions out of 8191
  84i,12n,87p,495b,606s stack positions out of 10000i,1000n,20000p,200000b,200000s
 <c:/texlive/2023/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb><c:/texlive/2023/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb><c:/texlive/2023/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi9.pfb><c:/texlive/2023/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb><c:/texlive/2023/texmf-dist/fonts/type1/public/amsfonts/cm/cmr5.pfb><c:/texlive/2023/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb><c:/texlive/2023/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb><c:/texlive/2023/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb><c:/texlive/2023/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy5.pfb><c:/texlive/2023/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy6.pfb><c:/texlive/2023/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb><c:/texlive/2023/texmf-dist/fonts/type1/urw/times/utmb8a.pfb><c:/texlive/2023/texmf-dist/fonts/type1/urw/times/utmr8a.pfb><c:/texlive/2023/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on rprt.pdf (4 pages, 1578651 bytes).
+Output written on rprt.pdf (4 pages, 1578827 bytes).
 PDF statistics:
  154 PDF objects out of 1000 (max. 8388607)
  111 compressed objects within 2 object streams
